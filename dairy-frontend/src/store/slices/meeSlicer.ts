@@ -1,21 +1,28 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import axiosInstance from "@/utils/axiosInstance"
 
+interface MeeState {
+  data: unknown | null;
+  loading: boolean;
+  error: string | null;
+  lastFetched: number | null;
+}
 
 export const getmee = createAsyncThunk("get/mee", async () => {
   const response = await axiosInstance.get("/users/me")
   return response.data.data
 })
 
+const initialState: MeeState = {
+  data: null,
+  loading: false,
+  error: null,
+  lastFetched: null,
+}
 
 const meeSlicer = createSlice({
   name: "mee",
-  initialState: {
-    data: null,
-    loading: false,
-    error: null,
-    lastFetched: null, // Add timestamp to track when data was last fetched
-  },
+  initialState,
   reducers: {
     clearMeeData: (state) => {
       state.data = null;
@@ -36,7 +43,7 @@ const meeSlicer = createSlice({
       })
       .addCase(getmee.rejected, (state, action) => {
         state.loading = false
-        state.error = action.error.message
+        state.error = action.error.message ?? "Failed to fetch user data"
         state.lastFetched = Date.now() // Track attempt to avoid infinite fetch loops
         // Clear user data on authentication failure
         if (action.error.message?.includes('401') || action.error.message?.includes('Unauthorized')) {
