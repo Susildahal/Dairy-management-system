@@ -1,0 +1,308 @@
+import  react ,{  useState } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Separator } from "@/components/ui/separator"
+import { Save, Settings as SettingsIcon, User, Mail, Phone, DollarSign } from "lucide-react"
+import { Calendar } from "lucide-react";
+import { toast } from "sonner"
+import { useDispatch, useSelector } from 'react-redux'
+import { updatedata, getsettingdata, savedata } from "../../../store/slices/sitesettingSlicer"
+import { RootState, AppDispatch } from '../../../store/store'
+import Loading from '../../ui/Loading'
+import { useEffect } from 'react'
+import { NepaliDatePicker } from "nepali-datepicker-reactjs";
+import "nepali-datepicker-reactjs/dist/index.css";
+import AdminHeader from '@/dashbord/common/AdminHeader'
+
+
+interface SiteSettings {
+  name: string
+  email: string
+  phone: string
+  rate_of_user: string
+  rate_of_admin: string
+}
+
+const Settings = () => {
+  const [settings, setSettings] = useState<SiteSettings>({
+    name: "",
+    email: "",
+    phone: "",
+    rate_of_user: "",
+    rate_of_admin: ""
+  })
+
+  const [isLoading, setIsLoading] = useState(false)
+  const [date, setDate] = useState<string>("");
+
+  const dispatch = useDispatch<AppDispatch>();
+  const { data, loading, error, dataExists } = useSelector((state: RootState) => state.siteSettings);
+  
+  useEffect(() => {
+    // Fetch settings from backend on component mount
+    dispatch(getsettingdata());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (data) {
+      setSettings({
+        name: data.name || "",
+        email: data.email || "",
+        phone: data.phone || "",
+        rate_of_user: String(data.rate_of_user || ""),
+        rate_of_admin: String(data.rate_of_admin || "")
+      });
+    }
+  }, [data]);
+
+  const handleInputChange = (field: keyof SiteSettings, value: string) => {
+    setSettings(prev => ({
+      ...prev,
+      [field]: value
+    }))
+  }
+
+  const handleSave = async () => {
+    setIsLoading(true)
+    try {
+      // Use savedata (POST) if no data exists on server, otherwise use updatedata (PUT)
+      if (!dataExists) {
+        await dispatch(savedata(settings)).unwrap()
+        toast.success("Settings created successfully!")
+      } else {
+        await dispatch(updatedata(settings)).unwrap()
+        toast.success("Settings updated successfully!")
+      }
+    } catch (error) {
+      console.error('Failed to save settings:', error)
+      toast.error("Failed to save settings. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleReset = () => {
+    setSettings({
+      name: "sushil dahal",
+      email: "susil@gmail.com",
+      phone: "123456789",
+      rate_of_user: "12",
+      rate_of_admin: "12"
+    })
+    toast.info("Settings reset to default values")
+  }
+
+  // Early return AFTER all hooks are declared
+  if (loading === "loading") {
+    return <Loading />
+  }
+
+  return (
+    <div className="space-y-6  mx-auto">
+      {/* Header */}
+      <AdminHeader 
+        title="Site Settings" 
+        subtitle="Configure your dairy farm management system settings"
+        linkname="Go to Dashboard"
+        linkto="/admin/dashboard"
+      />
+
+      <Separator />
+
+      {/* Settings Form */}
+      <div className="grid gap-6">
+        {/* Site Information */}
+        <Card className=" ">
+          <CardHeader className=" dark:bg-green-900/20">
+            <CardTitle className="flex items-center ">
+              <User className="h-5 w-5" />
+              Site Information
+            </CardTitle>
+            <CardDescription>
+              Basic information about your dairy farm site
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4 pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-sm font-medium">
+                  Site Name
+                </Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="name"
+                    type="text"
+                    value={settings.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    className="pl-10 focus:ring-green-500 focus:border-green-500"
+                    placeholder="Enter site name"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium">
+                  Contact Email
+                </Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="email"
+                    type="email"
+                    value={settings.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    className="pl-10 focus:ring-green-500 focus:border-green-500"
+                    placeholder="Enter contact email"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2 md:col-span-1">
+                <Label htmlFor="phone" className="text-sm font-medium">
+                  Contact Phone
+                </Label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={settings.phone}
+                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    className="pl-10 focus:ring-green-500 focus:border-green-500"
+                    placeholder="Enter contact phone"
+                  />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Rate Configuration */}
+        <Card className="">
+          <CardHeader className=" dark:bg-green-900/20">
+            <CardTitle className="flex items-center gap-2 ">
+              <DollarSign className="h-5 w-5" />
+              Rate Configuration
+            </CardTitle>
+            <CardDescription>
+              Set the rates for different user types in your system
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4 pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="rate_of_user" className="text-sm font-medium">
+                  User Rate (per unit)
+                </Label>
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="rate_of_user"
+                    type="number"
+                    value={settings.rate_of_user}
+                    onChange={(e) => handleInputChange('rate_of_user', e.target.value)}
+                    className="pl-10 focus:ring-green-500 focus:border-green-500"
+                    placeholder="Enter user rate"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+                <p className="text-xs text-gray-500">
+                  Rate charged to regular users for dairy services
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="rate_of_admin" className="text-sm font-medium">
+                  Admin Rate (per unit)
+                </Label>
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="rate_of_admin"
+                    type="number"
+                    value={settings.rate_of_admin}
+                    onChange={(e) => handleInputChange('rate_of_admin', e.target.value)}
+                    className="pl-10 focus:ring-green-500 focus:border-green-500"
+                    placeholder="Enter admin rate"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+                <p className="text-xs text-gray-500">
+                  Rate for admin-level services and operations
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Action Buttons */}
+        <Card className='border-none'>
+          <CardContent className="pt-6 border-none ">
+            <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
+              <Button
+                variant="outline"
+                onClick={handleReset}
+                className="sm:w-auto border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-800"
+              >
+                Reset to Default
+              </Button>
+              <Button
+                onClick={handleSave}
+                disabled={isLoading}
+                className="sm:w-auto bg-green-600 hover:bg-green-700 text-white focus:ring-green-500"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    Save Settings
+                  </>
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+{/* <div className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+  <h3 className="mb-4 text-lg font-semibold text-gray-800">Nepali Date</h3>
+  
+  <div className="relative">
+    <NepaliDatePicker
+      inputClassName="w-full px-4 py-2 pr-10 cursor-pointer border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+      className="datepicker-container"
+      value={date}
+      onChange={(value) => setDate(value)}
+      options={{ calenderLocale: "ne", valueLocale: "en" }}
+    />
+    <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+    {!date && (
+      <span
+        className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none select-none"
+      >
+        Select Nepali date
+      </span>
+    )}
+  </div>
+
+  <div className="mt-4 p-3 bg-gray-50 rounded-md border-l-4 border-blue-500">
+    <span className="text-sm text-gray-500 block uppercase tracking-wide">Selected BS Date</span>
+    <span className="text-lg font-medium text-gray-900">{date || '---'}</span>
+  </div>
+</div> */}
+
+
+
+    </div>
+  )
+}
+
+export default Settings

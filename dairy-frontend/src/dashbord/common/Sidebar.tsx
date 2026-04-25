@@ -1,0 +1,425 @@
+import { useState, useEffect } from "react"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Input } from "@/components/ui/input"
+import { 
+  Home, 
+  Users, 
+  Settings, 
+  FileText, 
+  BarChart3, 
+  Mail,  
+  ChevronLeft, 
+  ChevronRight, 
+  Menu,
+  X,
+  Search,
+  Milk
+} from "lucide-react"
+import { Link, useLocation } from "react-router-dom"
+import { useSelector } from "react-redux"
+import { RootState } from "../../store/store"
+import { getdata as getUsers } from "@/store/slices/userSlicer";
+import { AppDispatch } from "@/store/store";
+import { useDispatch } from "react-redux";
+
+interface SidebarProps {
+  className?: string
+  onCollapsedChange?: (collapsed: boolean) => void
+  role?: string
+}
+
+const adminSidebarItems = [
+  {
+    title: "Admin Dashboard",
+    icon: Home,
+    href: "/admin/dashboard",
+  },
+  {
+    title: "User Dashboard",
+    icon: BarChart3,
+    href: "/admin/user-dashboard",
+  },
+  {
+    title: "Users Details",
+    icon: Users,
+    href: "/admin/users",
+  },
+  {
+    title: "Create User",
+    icon: Users,
+    href: "/admin/users/create",
+  },
+  {
+    title: "Add Daily Milk",
+    icon: FileText,
+    href: "/admin/milk",
+  },
+  {
+    title: "Milk Management",
+    icon: Milk,
+    href: "/admin/milk-management",
+  },
+  {
+    title: "Add Month",
+    icon: BarChart3,
+    href: "/admin/add-month",
+  },
+  {
+    title: "Settings",
+    icon: Settings,
+    href: "/admin/settings",
+  },
+];
+
+const superadminSidebarItems = [
+  {
+    title: "SuperAdmin Dashboard",
+    icon: Home,
+    href: "/superadmin/dashboard",
+  },
+  {
+    title: "Admins",
+    icon: Users,
+    href: "/superadmin/admins",
+  },
+  {
+    title: "Create Admin",
+    icon: Users,
+    href: "/superadmin/create-admin",
+  },
+];
+
+// Role-based routes array for navigation
+export const roleBasedRoutes = [
+  {
+    title: "Admin Dashboard",
+    path: "/admin/dashboard",
+    allowedRoles: ["admin"], // Add more roles as needed
+  },
+  {
+    title: "User Dashboard",
+    path: "/admin/user-dashboard",
+    allowedRoles: ["user", "admin"],
+  },
+  {
+    title: "Users Details",
+    path: "/admin/users",
+    allowedRoles: ["admin"],
+  },
+  {
+    title: "Create User",
+    path: "/admin/users/create",
+    allowedRoles: ["admin"],
+  },
+  {
+    title: "Add Daily Milk",
+    path: "/admin/milk",
+    allowedRoles: ["admin"],
+  },
+  {
+    title: "Milk Management",
+    path: "/admin/milk-management",
+    allowedRoles: ["admin"],
+  },
+  {
+    title: "Add Month",
+    path: "/admin/add-month",
+    allowedRoles: ["admin"],
+  },
+  {
+    title: "Settings",
+    path: "/admin/settings",
+    allowedRoles: ["admin"],
+  },
+]
+
+// Role-based links array for navigation
+export const roleBasedLinks = [
+  {
+    title: "Admin Dashboard",
+    path: "/admin/dashboard",
+    allowedRoles: ["admin"], // Add more roles as needed
+  },
+  {
+    title: "User Dashboard",
+    path: "/admin/user-dashboard",
+    allowedRoles: ["user", "admin"],
+  },
+  {
+    title: "Users Details",
+    path: "/admin/users",
+    allowedRoles: ["admin"],
+  },
+  {
+    title: "Create User",
+    path: "/admin/users/create",
+    allowedRoles: ["admin"],
+  },
+  {
+    title: "Add Daily Milk",
+    path: "/admin/milk",
+    allowedRoles: ["admin"],
+  },
+  {
+    title: "Milk Management",
+    path: "/admin/milk-management",
+    allowedRoles: ["admin"],
+  },
+  {
+    title: "Add Month",
+    path: "/admin/add-month",
+    allowedRoles: ["admin"],
+  },
+  {
+    title: "Settings",
+    path: "/admin/settings",
+    allowedRoles: ["admin"],
+  },
+]
+
+const Sidebar = ({ className, onCollapsedChange, role }: SidebarProps) => {
+  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isMobileOpen, setIsMobileOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
+  const location = useLocation()
+  const pathname = location.pathname
+  const { data } = useSelector((state: RootState) => state.mee)
+  const dispatch: AppDispatch = useDispatch()
+
+  // Sidebar doesn't need to fetch users list; specific pages handle their own requirements
+  // mee data is fetched by Header.tsx
+  useEffect(() => {
+    // No-op - redundant call removed
+  }, [])
+
+  const toggleCollapsed = () => {
+    const newCollapsed = !isCollapsed
+    setIsCollapsed(newCollapsed)
+    if (onCollapsedChange) {
+      onCollapsedChange(newCollapsed)
+    }
+  }
+
+  const toggleMobile = () => {
+    setIsMobileOpen(!isMobileOpen)
+  }
+
+  let items = adminSidebarItems;
+  if (role === 'superadmin') {
+    items = superadminSidebarItems;
+  }
+  const filteredItems = items.filter(item =>
+    item.title.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
+  // Close mobile sidebar when route changes
+  useEffect(() => {
+    setIsMobileOpen(false)
+  }, [pathname])
+
+  return (
+    <>
+      {/* Mobile Menu Button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={toggleMobile}
+        className="md:hidden fixed top-1 left-1 text-black sm:top-4 sm:left-4 z-50 h-12 w-12 sm:h-10 sm:w-10 dark:bg-gray-800 rounded-lg dark:hover:bg-gray-700 active:scale-95 transition-all touch-manipulation"
+        aria-label={isMobileOpen ? "Close menu" : "Open menu"}
+      >
+        {isMobileOpen ? <X className="h-6 w-6 sm:h-5 sm:w-5" /> :  <Menu className="h-6 w-6 sm:h-5 sm:w-5" />}
+      </Button>
+
+      {/* Mobile Overlay */}
+      {isMobileOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/50 z-40 touch-none"
+          onClick={() => setIsMobileOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Desktop Sidebar */}
+      <div
+        className={cn(
+          "hidden md:flex h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 fixed left-0 top-0 z-40 shadow-lg",
+          isCollapsed ? "w-16" : "w-64",
+          className,
+        )}
+      >
+        <div className="flex flex-col w-full">
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 h-16  border-gray-200 dark:border-gray-700">
+            {!isCollapsed && (
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
+                Dairy Farm
+              </h2>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleCollapsed}
+              className="h-8 w-8 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex-shrink-0"
+              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+            </Button>
+          </div>
+
+          {/* Search */}
+          {!isCollapsed && (
+            <div className="p-4  border-gray-200 dark:border-gray-700">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search menu..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 h-9"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Navigation */}
+          <ScrollArea className="flex-1 px-3 py-4">
+            <nav className="space-y-2">
+              {filteredItems.map((item) => (
+                <div key={item.href} className="relative group">
+                  <Link to={item.href}>
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        "w-full justify-start text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors",
+                        isCollapsed ? "px-2" : "px-3",
+                        pathname === item.href && "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 border-r-2 border-green-500",
+                      )}
+                    >
+                      <item.icon className={cn("h-4 w-4", !isCollapsed && "mr-3")} />
+                      {!isCollapsed && <span>{item.title}</span>}
+                    </Button>
+                  </Link>
+                  
+                  {/* Tooltip for collapsed state */}
+                  {isCollapsed && (
+                    <div className="absolute left-full ml-4 top-1/2 transform -translate-y-1/2 bg-gray-900 dark:bg-gray-700 text-white text-sm px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-50 shadow-lg">
+                      {item.title}
+                      {/* Arrow pointing to the icon */}
+                      <div className="absolute left-[-6px] top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[6px] border-r-gray-900 dark:border-r-gray-700"></div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </nav>
+          </ScrollArea>
+
+          {/* Footer */}
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+            <div className={cn("flex items-center", isCollapsed ? "justify-center" : "space-x-3")}>
+              <div className="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center">
+                <span className="text-sm font-medium text-white">
+                  {data?.name ? data.name.charAt(0).toUpperCase() : "A"}
+                </span>
+              </div>
+              {!isCollapsed && (
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    {data?.name || "Admin User"}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    {data?.email || "admin@dairy.com"}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Sidebar */}
+      
+      <div
+        className={cn(
+          "md:hidden fixed left-0 top-0 h-full bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-transform duration-300 z-50 shadow-xl overflow-hidden",
+          "w-[280px] sm:w-64 max-w-[85vw]",
+          isMobileOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+      
+        <div className="flex flex-col w-full h-full">
+          {/* Mobile Header */}
+          <div className="flex items-center justify-between p-3 sm:p-4 h-14 sm:h-16 border-gray-200 dark:border-gray-700 flex-shrink-0">
+            <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white truncate">
+              Dairy Farm
+            </h2>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleMobile}
+              className="h-9 w-9 sm:h-8 sm:w-8 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex-shrink-0 touch-manipulation"
+              aria-label="Close menu"
+            >
+              <X className="h-5 w-5 sm:h-4 sm:w-4" />
+            </Button>
+          </div>
+
+          {/* Mobile Search */}
+          <div className="p-3 sm:p-4  border-gray-200 dark:border-gray-700 flex-shrink-0">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search menu..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 h-10 sm:h-9 text-base sm:text-sm"
+              />
+            </div>
+          </div>
+
+          {/* Mobile Navigation */}
+          <ScrollArea className="flex-1 px-2 sm:px- py-3 sm:py-">
+            <nav className="space-y-1 sm:space-y-2">
+              {filteredItems.map((item) => (
+                <Link key={item.href} to={item.href}>
+                  <Button
+                    variant="ghost"
+                    className={cn(
+                      "w-full justify-start text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 px-3 transition-colors h-11 sm:h-10 text-base sm:text-sm touch-manipulation",
+                      pathname === item.href && "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 border-r-2 border-green-500",
+                    )}
+                  >
+                    <item.icon className="h-5 w-5 sm:h-4 sm:w-4 mr-3 flex-shrink-0" />
+                    <span className="truncate">{item.title}</span>
+                  </Button>
+                </Link>
+              ))}
+            </nav>
+          </ScrollArea>
+
+          {/* Mobile Footer */}
+          <div className="p-3 sm:p-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+            <div className="flex items-center space-x-3">
+              <div className="h-10 w-10 sm:h-8 sm:w-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                <span className="text-base sm:text-sm font-medium text-white">
+                  {data?.name ? data.name.charAt(0).toUpperCase() : "A"}
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                  {data?.name || "Admin User"}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  {data?.email || "admin@dairy.com"}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  )
+}
+
+export default Sidebar;
