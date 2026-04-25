@@ -32,7 +32,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // CORS Configuration - supports multiple origins
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:5173','http://localhost:3000', 'http://172.26.224.1:5173', 'https://dairyadmin.vercel.app' ,"https://dairyadmin.vercel.app" ," http://192.168.18.254:5173/", 'http://172.26.224.1:5173/'];
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:5173','https://sadabahardairy.vercel.app', 'http://172.26.224.1:5173', 'https://dairyadmin.vercel.app' ,"https://dairyadmin.vercel.app" ,];
 
 const corsOptions = {
     origin: function (origin, callback) {
@@ -72,7 +72,7 @@ app.use(errorHandlerMiddleware);
 
 const api = async () => {
     try {
-        const response = await axios.get('https://dairy-backend-hwt2.onrender.com/api/ping');
+        const response = await axios.get('https://multi-vendor-o8bb.onrender.com/api/ping');
         console.log(`Public IP Address: ${response.data}`);
 
     } catch (error) {
