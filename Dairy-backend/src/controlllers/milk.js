@@ -291,7 +291,7 @@ export const allmilk = async (req, resp) => {
 
         // Get paginated data — sort by date desc then name asc
         const milkData = await Milk.find(filter)
-            .sort({ date: -1, name: 1 })
+            // .sort({ date: -1, name: 1 })
             .skip(skip)
             .limit(limitNumber);
 

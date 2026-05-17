@@ -12,7 +12,6 @@ import { updatedata, getsettingdata, savedata } from "../../../store/slices/site
 import { RootState, AppDispatch } from '../../../store/store'
 import Loading from '../../ui/Loading'
 import { useEffect } from 'react'
-import { NepaliDatePicker } from "nepali-datepicker-reactjs";
 import "nepali-datepicker-reactjs/dist/index.css";
 import AdminHeader from '@/dashbord/common/AdminHeader'
 

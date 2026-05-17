@@ -71,21 +71,23 @@ export const deleteuser = createAsyncThunk("users/user/deleteuser", async (id: s
   }
 });
 
-export const register = createAsyncThunk("users/register", async (userData: any) => {
-  try {
-    const response = await axiosInstance.post("/users/register", userData);
-    return response.data.data.user;
-  } catch (error: any) {
-    // Return mock data as fallback for development
-    console.warn("Register API call failed, using mock data:", error.message);
-    return {
-      _id: Date.now().toString(),
-      ...userData,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
+export const register = createAsyncThunk(
+  "users/register",
+  async (userData: any, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post("/users/register", userData);
+      return response.data.data.user;
+    } catch (error: any) {
+      // IMPORTANT: Don't return mock data here; it would add invalid users to local state.
+      const message =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.message ||
+        "Failed to create user";
+      return rejectWithValue(message);
+    }
   }
-});
+);
 
 export const getUsers = createAsyncThunk("users/getUsers", async (params: any) => {
   try {
@@ -235,7 +237,7 @@ const userSlicer = createSlice({
         state.error = null;
       })
       .addCase(register.rejected, (state, action) => {
-        state.error = action.error.message || "Failed to create user";
+        state.error = (action.payload as string) || action.error.message || "Failed to create user";
         state.createLoading = false;
       })
       // Update user cases

@@ -28,15 +28,15 @@ interface UserFormValues {
   maxUsers?: number;
 }
 
-interface User {
+interface UserEntity {
   _id: string;
   name: string;
   email: string;
-  phone: string;
+  phone?: string;
   role: string;
   status: boolean;
-  tagnumber: string;
-  both: boolean;
+  tagnumber?: string;
+  both?: boolean;
   maxUsers?: number;
 }
 
@@ -115,7 +115,7 @@ const Createuser = ({ isedit = false }: { isedit?: boolean }) => {
       // Safely get users array from state
       const users = Array.isArray(data) ? data : [];
       // First check if user exists in current state
-      const existingUser = users.find((user: User) => user._id === id);
+      const existingUser = users.find((user: UserEntity) => user._id === id);
       
       if (existingUser) {
         // User found in state, populate form
@@ -136,7 +136,7 @@ const Createuser = ({ isedit = false }: { isedit?: boolean }) => {
         // User not in state, fetch from API
         dispatch(getbyid(id!))
           .unwrap()
-          .then((userData: User) => {
+          .then((userData: UserEntity) => {
             const userValues: UserFormValues = {
               name: userData.name || '',
               email: userData.email || '',
@@ -211,6 +211,8 @@ const Createuser = ({ isedit = false }: { isedit?: boolean }) => {
 
     } catch (error) {
       console.error(`Error ${isEditMode ? 'updating' : 'creating'}:`, error);
+      const message = typeof error === 'string' ? error : (error as any)?.message
+      toast.error(message || `Failed to ${isEditMode ? 'update' : 'create'} ${isSuperAdminPath ? 'admin' : 'user'}`)
     } finally {
       setSubmitting(false);
     }

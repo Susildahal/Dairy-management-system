@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { getsettingdata } from "../../../store/slices/sitesettingSlicer"
-import { Milk, Eye, Save, Users, Sun, Moon, User, Calendar } from "lucide-react"
+import { Milk, Eye, Save,  Calendar } from "lucide-react"
 import { NepaliDatePicker } from "nepali-datepicker-reactjs";
 import "nepali-datepicker-reactjs/dist/index.css";
 import ND from "nepali-date-converter"
@@ -585,7 +585,7 @@ const Addmilk = () => {
       <CalendarStyleInjector />
       <AdminHeader
         title="Add Milk Entry"
-        subtitle="Record daily milk collection from all farmers"
+        subtitle="Record daily milk collection"
         linkname="Create Records"
         linkto="/admin/create-milk-records"
       />
@@ -606,7 +606,7 @@ const Addmilk = () => {
 
             return (
               <div className="space-y-6">
-                <div className=" dark:bg-gray-800  rounded-xl  dark:border-gray-700">
+                <div className=" dark:bg-gray-800   w-full overflow-x-auto">
                   <div className="flex  items-center gap-6">
                     {/* Date Picker */}
                     <div className="flex items-center gap-3">
@@ -648,10 +648,10 @@ const Addmilk = () => {
                     </div>
 
                     {/* Total Display */}
-                    <div className="ml-auto hidden md:flex items-center gap-2 px-4 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-lg border border-blue-100 dark:border-blue-800">
+                    <div className="ml-auto flex items-center gap-2 px-4 py-1.5 text-blue-600 rounded-lg  ">
                       <Milk className="w-4 h-4" />
                       <span className="text-xs font-bold uppercase tracking-wider">Today's Milk:</span>
-                      <span className="text-lg font-black">{totalMilk.toFixed(1)} L</span>
+                      <span className="text-lg font-black">{totalMilk.toFixed(1)}</span>L
                     </div>
                   </div>
                 </div>
@@ -663,21 +663,7 @@ const Addmilk = () => {
 
                   {/* Users Milk Entry Form Table */}
                   <div className=" dark:bg-gray-800 dark:border-gray-700 overflow-hidden">
-                    {/* <div className="p-4 dark:border-gray-700">
-                      <div className="flex items-center gap-2">
-                        <Users className="h-5 w-5 text-green-600" />
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                          Milk Collection Form - {
-                            selectedFilter === 'morning' ? 'Morning'
-                            : selectedFilter === 'night' ? 'Night'
-                            : 'Morning & Night'
-                          }
-                        </h3>
-                      </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                        Enter milk data for all users and submit together
-                      </p>
-                    </div> */}
+                   
 
                     <div className="overflow-x-auto">
                       <Table className="min-w-full">
@@ -795,11 +781,11 @@ const Addmilk = () => {
                                             >
                                               ₹{entry.todaymoney.toFixed(2)}
                                             </Badge>
-                                            {entry.todaymilk && entry.todayfit && (
+                                            {/* {entry.todaymilk && entry.todayfit && (
                                               <span className="text-xs text-gray-500 hidden sm:inline">
                                                 ({parseFloat(entry.todaymilk || '0').toFixed(1)} L * {parseFloat(entry.todayfit || '0').toFixed(1)} * ₹{hasSuperAdminUsers ? superadminrate : rate})
                                               </span>
-                                            )}
+                                            )} */}
                                           </div>
                                         </TableCell>
                                         <TableCell className="py-4 ">

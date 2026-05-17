@@ -5,17 +5,16 @@ import { getAllMilk, updateMilk, deleteMilk } from '../../../store/slices/milkSl
 import { getAllMonths } from "../../../store/slices/monthslicer"
 import { getdata } from "../../../store/slices/userSlicer"
 import { AdminPDFModal } from './components/AdminPDFModal'
-import axios from 'axios'
 import ConfirmDeleteDialog from "@/components/ui/ConfirmDeleteDialog";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card"
+import { Card, CardContent } from "../../../components/ui/card"
 import { Button } from "../../../components/ui/button"
-import { Badge } from "../../../components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../components/ui/table"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select"
 import { Input } from "../../../components/ui/input"
 import { Label } from "../../../components/ui/label"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../../components/ui/dialog"
+import {  getsettingdata} from "../../../store/slices/sitesettingSlicer"
+
 import { 
   ChevronLeft, ChevronRight, 
   ChevronsLeft, ChevronsRight, 
@@ -47,6 +46,7 @@ interface MilkEntry {
   createdAt: string
   updatedAt: string
   date:string
+  rate:number
 }
 
 interface UpdateMilkEntryData {
@@ -61,9 +61,26 @@ interface UpdateMilkEntryData {
 const MilkManagement: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
   const { milkEntries, loading, error, pagination } = useSelector((state: RootState) => state.milk)
+    const { data:settingdata, loading:setingloloading, error:settingError,  } = useSelector((state: RootState) => state.siteSettings);
   const { data: usersData } = useSelector((state: RootState) => state.user)
   const users = Array.isArray(usersData) ? usersData : []
   const { months } = useSelector((state: RootState) => state.months)
+
+  const safeNumber = (value: unknown, fallback = 0) => {
+    const n = typeof value === 'number' ? value : Number(value)
+    return Number.isFinite(n) ? n : fallback
+  }
+
+  // Single dynamic rate (no user-type branching)
+  const rate = useMemo(() => {
+    return safeNumber((settingdata as any)?.rate_of_user, 0)
+  }, [settingdata])
+
+  const calculateMoney = (milk: number, fat: number) => {
+    // Formula provided: milk × fat × rate (not divided by 100)
+    const amount = safeNumber(milk, 0) * safeNumber(fat, 0) * safeNumber(rate, 0)
+    return safeNumber(parseFloat(amount.toFixed(2)), 0)
+  }
 
   // Filter states
   const [filters, setFilters] = useState<FilterParams>({
@@ -114,6 +131,13 @@ const MilkManagement: React.FC = () => {
       dispatch(getdata())
   }, [dispatch, usersData])
 
+  // Ensure settings are loaded (must be before any conditional returns)
+  useEffect(() => {
+    if (settingdata == null) {
+      dispatch(getsettingdata())
+    }
+  }, [dispatch, settingdata])
+
   // Fetch milk data with filters
   const fetchMilkData = () => {
     const params: any = { ...filters }
@@ -131,10 +155,10 @@ const MilkManagement: React.FC = () => {
   }, [filters, selectedFilter, date])
 
   // Handle filter changes
-  const handleFilterChange = (key: keyof FilterParams, value: any) => {
+  const handleFilterChange = (key: string, value: any) => {
     setFilters(prev => ({
       ...prev,
-      [key]: value,
+      [key as keyof FilterParams]: value,
       page: 1 // Reset to first page when filters change
     }))
   }
@@ -157,39 +181,45 @@ const MilkManagement: React.FC = () => {
   const handleOpenUpdateModal = (entry: MilkEntry) => {
     setSelectedEntry(entry)
     const user = users.find((u: any) => u._id === entry.userid)
+
+    const initialMilk = safeNumber(entry.todaymilk, 0)
+    const initialFat = safeNumber(entry.todayfit, 0)
+    const initialMoney = calculateMoney(initialMilk, initialFat)
     
     setUpdateData({
       userid: entry.userid,
       name: user?.name || 'Unknown User',
-      todaymilk: entry.todaymilk,
-      todayfit: entry.todayfit,
-      todaymoney: entry.todaymoney,
+      todaymilk: initialMilk,
+      todayfit: initialFat,
+      todaymoney: initialMoney,
       session: entry.session
     })
     setUpdateModalOpen(true)
   }
 
   // Handle input changes for update modal
-  const handleUpdateInputChange = (field: keyof UpdateMilkEntryData, value: number) => {
+  const handleUpdateInputChange = (field: 'todaymilk' | 'todayfit', value: number) => {
+    const nextValue = safeNumber(value, 0)
+
+    setUpdateData(prev => {
+      const nextMilk = field === 'todaymilk' ? nextValue : safeNumber(prev.todaymilk, 0)
+      const nextFat = field === 'todayfit' ? nextValue : safeNumber(prev.todayfit, 0)
+      return {
+        ...prev,
+        [field]: nextValue,
+        todaymoney: calculateMoney(nextMilk, nextFat)
+      }
+    })
+  }
+
+  // If settings load after modal opens, recompute Amount from formula
+  useEffect(() => {
+    if (!updateModalOpen) return
     setUpdateData(prev => ({
       ...prev,
-      [field]: value
+      todaymoney: calculateMoney(prev.todaymilk, prev.todayfit)
     }))
-    
-    // Auto-calculate money if milk or fat changes (you can adjust this formula)
-    if (field === 'todaymilk' || field === 'todayfit') {
-      const rate = 80 // Base rate per liter
-      const fatBonus = 2 // Rs per fat percentage point
-      const milk = field === 'todaymilk' ? value : updateData.todaymilk
-      const fat = field === 'todayfit' ? value : updateData.todayfit
-      
-      const calculatedMoney = milk * (rate + (fat * fatBonus))
-      setUpdateData(prev => ({
-        ...prev,
-        todaymoney: Math.round(calculatedMoney)
-      }))
-    }
-  }
+  }, [updateModalOpen, rate])
 
   // Update milk entry
   const handleUpdateMilkEntry = async () => {
@@ -315,6 +345,7 @@ const nepalimonth =[
   { label: 11, monthname: "Chaitra" }
 ];
 
+
   return (
     <>
     <div className="">
@@ -365,13 +396,13 @@ const nepalimonth =[
               <Table>
                 <TableHeader>
                   <TableRow className="bg-gray-50">
+                    <TableHead className="py-2 sm:py-3 text-xs sm:text-sm font-semibold">Index</TableHead>
                     <TableHead className="py-2 sm:py-3 text-xs sm:text-sm font-semibold">Date</TableHead>
                     <TableHead className="py-2 sm:py-3 text-xs sm:text-sm font-semibold">User</TableHead>
                     <TableHead className="py-2 sm:py-3 text-xs sm:text-sm font-semibold">Session</TableHead>
                     <TableHead className="py-2 sm:py-3 text-xs sm:text-sm font-semibold">Milk</TableHead>
                     <TableHead className="py-2 sm:py-3 text-xs sm:text-sm font-semibold">Fat%</TableHead>
                     <TableHead className="py-2 sm:py-3 text-xs sm:text-sm font-semibold">Amount</TableHead>
-                    {/* <TableHead className="py-2 sm:py-3 text-xs sm:text-sm font-semibold hidden sm:table-cell">Month</TableHead> */}
                     <TableHead className="py-2 sm:py-3 text-xs sm:text-sm font-semibold w-[60px] sm:w-[80px]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -383,6 +414,9 @@ const nepalimonth =[
                   
                   return (
                     <TableRow key={entry._id} className="text-xs sm:text-sm hover:bg-gray-50">
+                      <TableCell className="py-1.5 sm:py-2.5 font-medium whitespace-nowrap">
+                        {filteredEntries.indexOf(entry) + 1}
+                      </TableCell>
                       <TableCell className="py-1.5 sm:py-2.5 font-medium whitespace-nowrap">
                         {formatDate(entry.date)}
                       </TableCell>
@@ -401,11 +435,6 @@ const nepalimonth =[
                       <TableCell className="py-1.5 sm:py-2.5 text-green-600 font-semibold whitespace-nowrap">
                         Rs.{formatNepaliNumber(entry.todaymoney || 0)}
                       </TableCell>
-                      {/* <TableCell className="py-1.5 sm:py-2.5 hidden sm:table-cell">
-                        <Badge variant="outline" className="text-[10px] sm:text-xs py-0 sm:py-0.5 px-1.5 sm:px-2">
-                          {month?.monthname}
-                        </Badge>
-                      </TableCell> */}
                       <TableCell className="py-1.5 sm:py-2.5">
                         <div>
                         <Button 
@@ -424,10 +453,7 @@ const nepalimonth =[
                         >
                           <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
-
 </div>
-
-
                       </TableCell>
                     </TableRow>
                   )
@@ -566,7 +592,7 @@ const nepalimonth =[
                     type="number"
                     step="0.01"
                     value={updateData.todaymilk}
-                    onChange={(e) => handleUpdateInputChange('todaymilk', parseFloat(e.target.value))}
+                    onChange={(e) => handleUpdateInputChange('todaymilk', safeNumber(e.target.value, 0))}
                     className="text-sm sm:text-base h-8 sm:h-10"
                   />
                 </div>
@@ -578,7 +604,7 @@ const nepalimonth =[
                     type="number"
                     step="0.1"
                     value={updateData.todayfit}
-                    onChange={(e) => handleUpdateInputChange('todayfit', parseFloat(e.target.value))}
+                    onChange={(e) => handleUpdateInputChange('todayfit', safeNumber(e.target.value, 0))}
                     className="text-sm sm:text-base h-8 sm:h-10"
                   />
                 </div>
@@ -589,10 +615,10 @@ const nepalimonth =[
                     id="money"
                     type="number"
                     value={updateData.todaymoney}
-                    onChange={(e) => handleUpdateInputChange('todaymoney', parseFloat(e.target.value))}
+                    readOnly
+                    disabled
                     className="text-sm sm:text-base h-8 sm:h-10"
                   />
-                  <p className="text-[10px] sm:text-xs text-gray-500">Automatically calculated based on milk and fat</p>
                 </div>
               </>
             )}
