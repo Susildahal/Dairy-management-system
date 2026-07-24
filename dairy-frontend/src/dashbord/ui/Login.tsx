@@ -10,6 +10,8 @@ import axiosInstance from "@/utils/axiosInstance"
 import { apiToast } from "@/utils/toast"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
+import { useTranslation } from 'react-i18next'
+import i18n from '@/i18n'
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -19,6 +21,7 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const navigator = useNavigate()
   const { login } = useAuth()
+  const { t } = useTranslation()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,12 +29,12 @@ export default function LoginPage() {
     setError("")
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError("Enter a valid email.")
+      setError(t('auth.invalidEmail'))
       setIsLoading(false)
       return
     }
     if (password.length < 6) {
-      setError("Password must be at least 6 characters.")
+      setError(t('auth.passwordMinLength'))
       setIsLoading(false)
       return
     }
@@ -104,11 +107,17 @@ export default function LoginPage() {
             <div className="bg-blue-700 p-2 rounded-lg">
               <Milk className="w-5 h-5 text-white" />
             </div>
-            <span className="text-gray-800 font-semibold text-lg tracking-tight">DairyConnect</span>
+            <span className="text-gray-800 font-semibold text-lg tracking-tight">{t('auth.brand')}</span>
           </div>
 
-          <h2 className="text-2xl font-bold text-gray-900 mb-1">Sign in to your account</h2>
-          <p className="text-sm text-gray-500 mb-8">Enter your credentials to access the admin panel.</p>
+          <div className="flex justify-end mb-4">
+            <Button variant="ghost" size="sm" onClick={() => i18n.changeLanguage(i18n.language && i18n.language.startsWith('np') ? 'en' : 'np')}>
+              {(i18n.language || 'en').slice(0, 2).toUpperCase()}
+            </Button>
+          </div>
+
+          <h2 className="text-2xl font-bold text-gray-900 mb-1">{t('auth.title')}</h2>
+          <p className="text-sm text-gray-500 mb-8">{t('auth.subtitle')}</p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
@@ -120,14 +129,14 @@ export default function LoginPage() {
             {/* Email */}
             <div className="space-y-1.5">
               <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                Email Address
+                {t('auth.email')}
               </Label>
               <div className="relative group">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
                 <Input
                   id="email"
                   type="email"
-                  placeholder="admin@dairy.com"
+                  placeholder={t('auth.emailPlaceholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-9 h-10 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 rounded-lg text-sm"
@@ -140,13 +149,13 @@ export default function LoginPage() {
             <div className="space-y-1.5">
               <div className="flex justify-between items-center">
                 <Label htmlFor="password" className="text-sm font-medium text-gray-700">
-                  Password
+                  {t('auth.password')}
                 </Label>
                 <Button
                   variant="link"
                   className="px-0 text-xs text-blue-600 hover:text-blue-700 font-medium h-auto"
                 >
-                  Forgot password?
+                  {t('auth.forgotPassword')}
                 </Button>
               </div>
               <div className="relative group">
@@ -154,7 +163,7 @@ export default function LoginPage() {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
+                  placeholder={t('auth.passwordPlaceholder')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-9 pr-10 h-10 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 rounded-lg text-sm"
@@ -163,7 +172,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-label={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -175,7 +184,7 @@ export default function LoginPage() {
             <div className="flex items-center space-x-2">
               <Checkbox id="remember" />
               <Label htmlFor="remember" className="text-sm text-gray-600 cursor-pointer">
-                Remember me
+                {t('auth.rememberMe')}
               </Label>
             </div>
 
@@ -187,10 +196,10 @@ export default function LoginPage() {
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Signing in...
+                  {t('auth.signingIn')}
                 </>
               ) : (
-                "Sign In"
+                t('auth.signIn')
               )}
             </Button>
           </form>

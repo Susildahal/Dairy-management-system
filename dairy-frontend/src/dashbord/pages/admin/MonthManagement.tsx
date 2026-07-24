@@ -51,6 +51,7 @@ import {
   clearError 
 } from '../../../store/slices/monthslicer'
 import Loading from '../../ui/Loading'
+import { useTranslation } from 'react-i18next'
 
 interface CreateMonthForm {
   year: string
@@ -64,6 +65,7 @@ const MONTHS = [
 ]
 
 const MonthManagement = () => {
+  const { t } = useTranslation()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [formData, setFormData] = useState<CreateMonthForm>({
     year: '',
@@ -134,7 +136,7 @@ const MonthManagement = () => {
 
     try {
       await dispatch(createMonth(payload)).unwrap()
-      toast.success("Month created successfully!")
+      toast.success(t('monthManagement.monthCreated'))
       setIsModalOpen(false)
       setFormData({
         year: '',
@@ -149,7 +151,7 @@ const MonthManagement = () => {
   const handleActivate = async (monthId: string) => {
     try {
       await dispatch(activateMonth(monthId)).unwrap()
-      toast.success("Month activated successfully!")
+      toast.success(t('monthManagement.monthActivated'))
     } catch (error) {
       console.error('Failed to activate month:', error)
     }
@@ -163,7 +165,7 @@ const MonthManagement = () => {
     
     try {
       await dispatch(deleteMonth(deleteDialog.monthId)).unwrap();
-      toast.success("Month deleted successfully!");
+      toast.success(t('monthManagement.monthDeleted'));
       setDeleteDialog({ isOpen: false, monthId: null, monthName: '', year: '' });
     } catch (error) {
       console.error('Failed to delete month:', error);
@@ -218,11 +220,11 @@ const MonthManagement = () => {
 
         <div className="flex-1">
           <CardTitle className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white tracking-tight">
-                            Month Management
+                            {t('monthManagement.title')}
 
           </CardTitle>
           <CardDescription className="text-base sm:text-base text-gray-600 dark:text-gray-400 mt-1">
-            Manage dairy farm operational months and activate current period
+            {t('monthManagement.subtitle')}
 
           </CardDescription>
         </div>
@@ -232,17 +234,17 @@ const MonthManagement = () => {
             <DialogTrigger asChild>
               <Button className="bg-green-600 hover:bg-green-700 text-white shadow-sm">
                 <Plus className="h-4 w-4 mr-2" />
-                Add Month
+                {t('monthManagement.addMonth')}
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-lg">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <Calendar className="h-5 w-5 text-green-600" />
-                  Create New Month
+                  {t('monthManagement.createNewMonth')}
                 </DialogTitle>
                 <DialogDescription>
-                  Add a new month to the dairy farm management system
+                  {t('monthManagement.addNewMonth')}
                 </DialogDescription>
               </DialogHeader>
               
@@ -251,7 +253,7 @@ const MonthManagement = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="year" className="text-sm font-medium">
-                      Year <span className="text-red-500">*</span>
+                      {t('monthManagement.year')} <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="year"
@@ -270,14 +272,14 @@ const MonthManagement = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="month" className="text-sm font-medium">
-                      Month <span className="text-red-500">*</span>
+                      {t('monthManagement.month')} <span className="text-red-500">*</span>
                     </Label>
                     <Select  
                       value={formData.month} 
                       onValueChange={(value) => setFormData({...formData, month: value})}
                     >
                       <SelectTrigger className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-                        <SelectValue placeholder="Select month" />
+                        <SelectValue placeholder={t('monthManagement.selectMonth')} />
                       </SelectTrigger>
                       <SelectContent>
                         {MONTHS.map((monthName) => (
@@ -295,10 +297,10 @@ const MonthManagement = () => {
                   <div className="flex items-center justify-between">
                     <div className="space-y-1">
                       <Label htmlFor="status" className="text-sm font-medium">
-                        Set as active month
+                        {t('monthManagement.setActiveMonth')}
                       </Label>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        This will deactivate all other months
+                        {t('monthManagement.activeMonthNote')}
                       </p>
                     </div>
                     <Switch
@@ -316,10 +318,10 @@ const MonthManagement = () => {
                     <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
                     <div className="space-y-1">
                       <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                        Important Notice
+                        {t('monthManagement.importantNotice')}
                       </p>
                       <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                        Setting this month as active will automatically deactivate all other months in the system.
+                        {t('monthManagement.activeWarning')}
                       </p>
                     </div>
                   </div>
@@ -334,7 +336,7 @@ const MonthManagement = () => {
                     className="flex-1 order-2 sm:order-1"
                     disabled={createLoading}
                   >
-                    Cancel
+                    {t('common.cancel')}
                   </Button>
                   <Button 
                     type="submit" 
@@ -344,12 +346,12 @@ const MonthManagement = () => {
                     {createLoading ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Creating...
+                        {t('monthManagement.creating')}
                       </>
                     ) : (
                       <>
                         <Plus className="h-4 w-4 mr-2" />
-                        Create Month
+                        {t('monthManagement.createMonth')}
                       </>
                     )}
                   </Button>
@@ -363,35 +365,7 @@ const MonthManagement = () => {
       <Separator className="my-2" />
 
       {/* Active Month Card */}
-      {activeMonth && (
-        <Card className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/10">
-          <CardHeader className="">
-            <CardTitle className="flex items-center  text-green-700 dark:text-green-300">
-              <CheckCircle className="h-2 w-2" />
-              Currently Active Month
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center ">
-                <div className="text-lg font-bold text-green-800 dark:text-green-200">
-                  {activeMonth.month} {activeMonth.year}
-                </div>
-                <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-                  <CheckCircle className="h-3 w-3" />
-                  Active
-                </Badge>
-              </div>
-              <div className="text-sm text-green-600 dark:text-green-400">
-                {activeMonth.createdAt ? 
-                  `Created: ${new Date(activeMonth.createdAt).toLocaleDateString()}` : 
-                  'Recently created'
-                }
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+     
 
     
 
@@ -401,11 +375,11 @@ const MonthManagement = () => {
             <Table>
               <TableHeader>
                 <TableRow className="border-gray-200 dark:border-gray-700">
-                  <TableHead className="font-semibold">Month</TableHead>
-                  <TableHead className="font-semibold">Year</TableHead>
-                  <TableHead className="font-semibold">Status</TableHead>
-                  <TableHead className="font-semibold">Created</TableHead>
-                  <TableHead className="text-right font-semibold">Actions</TableHead>
+                    <TableHead className="font-semibold">{t('monthManagement.tableMonth')}</TableHead>
+                    <TableHead className="font-semibold">{t('monthManagement.tableYear')}</TableHead>
+                    <TableHead className="font-semibold">{t('monthManagement.tableStatus')}</TableHead>
+                    <TableHead className="font-semibold">{t('monthManagement.tableCreated')}</TableHead>
+                    <TableHead className="text-right font-semibold">{t('monthManagement.tableActions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -417,11 +391,11 @@ const MonthManagement = () => {
                           <Calendar className="h-8 w-8 text-gray-400" />
                         </div>
                         <div className="space-y-1">
-                          <p className="text-gray-500 font-medium">No months found</p>
+                          <p className="text-gray-500 font-medium">{t('monthManagement.noMonths')}</p>
                           <p className="text-sm text-gray-400">
                             {filterYear !== 'all' 
-                              ? `No months created for year ${filterYear}` 
-                              : 'Create your first month to get started'
+                              ? t('monthManagement.noMonthsForYear', { year: filterYear }) 
+                              : t('monthManagement.firstMonth')
                             }
                           </p>
                         </div>
@@ -450,12 +424,12 @@ const MonthManagement = () => {
                           {month.status ? (
                             <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
                               <CheckCircle className="h-3 w-3 mr-1" />
-                              Active
+                              {t('usersManagement.active')}
                             </Badge>
                           ) : (
                             <Badge variant="secondary" className="bg-gray-100 text-gray-600">
                               <Circle className="h-3 w-3 mr-1" />
-                              Inactive
+                              {t('usersManagement.inactive')}
                             </Badge>
                           )}
                         </div>
@@ -479,7 +453,7 @@ const MonthManagement = () => {
                             <div className="flex items-center gap-2">
                               <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
                               <span className="text-xs text-green-600 font-medium">
-                                Active month
+                                {t('usersManagement.active')}
                               </span>
                             </div>
                           )}
@@ -499,12 +473,12 @@ const MonthManagement = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-red-600">
               <AlertTriangle className="h-5 w-5" />
-              Confirm Delete
+              {t('usersManagement.confirmDeleteTitle')}
             </DialogTitle>
             <DialogDescription className="pt-3">
-              Are you sure you want to delete <span className="font-semibold text-gray-900 dark:text-gray-100">{deleteDialog.monthName} {deleteDialog.year}</span>?
+              {t('usersManagement.confirmDeleteMessage', { name: `${deleteDialog.monthName} ${deleteDialog.year}` })}
               <br />
-              <span className="text-red-600 font-medium">This action cannot be undone.</span>
+              <span className="text-red-600 font-medium">{t('usersManagement.confirmDeleteWarning')}</span>
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">
@@ -514,7 +488,7 @@ const MonthManagement = () => {
               onClick={cancelDelete}
               disabled={deleteLoading}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               type="button"
@@ -526,12 +500,12 @@ const MonthManagement = () => {
               {deleteLoading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Deleting...
+                  {t('usersManagement.deleting')}
                 </>
               ) : (
                 <>
                   <Trash2 className="h-4 w-4 mr-2" />
-                  Delete Month
+                  {t('common.delete')}
                 </>
               )}
             </Button>

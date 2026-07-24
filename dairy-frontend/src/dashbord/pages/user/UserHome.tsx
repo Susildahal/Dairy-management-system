@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "react-router-dom"
-import axiosInstance from "@/utils/axiosInstance"
+import { useTranslation } from "react-i18next"
+import i18n from "@/i18n"
 export default function UserHome() {
   const navigate= useNavigate()
+  const { t } = useTranslation()
   const hadnlecheck =()=>{
     const flag = localStorage.getItem("flag")
     if(flag==="true"){
@@ -14,28 +16,30 @@ export default function UserHome() {
   }
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800">
-    <div className="p-4 flex justify-end"> 
-
-      <Button className=" bg-green-500 hover:bg-green-600" onClick={hadnlecheck} >Login</Button>
+    <div className="p-4 flex justify-end gap-2"> 
+      <Button variant="outline" onClick={() => i18n.changeLanguage(i18n.language && i18n.language.startsWith('np') ? 'en' : 'np')}>
+        {(i18n.language || 'en').slice(0, 2).toUpperCase()}
+      </Button>
+      <Button className=" bg-green-500 hover:bg-green-600" onClick={hadnlecheck} >{t('home.login')}</Button>
       </div>
       <div className="relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
-              Welcome to 
-              <span className="text-green-600 dark:text-green-400"> DairyFarm</span>
+              {t('home.welcomeTo')} 
+              <span className="text-green-600 dark:text-green-400"> {t('home.brand')}</span>
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-400 mb-8 max-w-3xl mx-auto">
-              Your trusted partner for fresh, high-quality dairy products. 
-              From farm to table, we ensure the best for your family.
+              {t('home.heroLead')} 
+              {t('home.heroSub')}
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200">
-                Order Now
+                {t('home.orderNow')}
               </button>
               <button className="px-8 py-3 border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white font-semibold rounded-lg transition-all duration-200">
-                Learn More
+                {t('home.learnMore')}
               </button>
             </div>
           </div>
@@ -47,11 +51,10 @@ export default function UserHome() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              Why Choose Our Dairy Products?
+              {t('home.whyChoose')}
             </h2>
             <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              We're committed to providing the freshest, most nutritious dairy products 
-              with sustainable farming practices.
+              {t('home.whyDescription')}
             </p>
           </div>
 
@@ -63,10 +66,10 @@ export default function UserHome() {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                100% Fresh
+                {t('home.freshTitle')}
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Our products are delivered fresh daily, ensuring maximum quality and taste.
+                {t('home.freshDescription')}
               </p>
             </div>
 
@@ -77,10 +80,10 @@ export default function UserHome() {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                Naturally Organic
+                {t('home.organicTitle')}
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Our cattle graze on organic pastures, producing naturally healthy milk.
+                {t('home.organicDescription')}
               </p>
             </div>
 
@@ -91,10 +94,10 @@ export default function UserHome() {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                Fast Delivery
+                {t('home.deliveryTitle')}
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Quick and reliable delivery service to get fresh products to your door.
+                {t('home.deliveryDescription')}
               </p>
             </div>
           </div>
@@ -105,13 +108,13 @@ export default function UserHome() {
       <div className="py-16 bg-green-600 dark:bg-green-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">
-            Ready to Experience Fresh Dairy?
+            {t('home.readyTitle')}
           </h2>
           <p className="text-green-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of satisfied customers who trust us for their daily dairy needs.
+            {t('home.readySubtitle')}
           </p>
           <button className="px-8 py-3 bg-white text-green-600 font-semibold rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-50 transition-all duration-200">
-            Start Your Order
+            {t('home.startOrder')}
           </button>
         </div>
       </div>

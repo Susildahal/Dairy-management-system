@@ -24,6 +24,7 @@ import {
 import { toast } from 'sonner'
 import ND from "nepali-date-converter";
 import MilkManagementHeader from './components/MilkManagementHeader'
+import { useTranslation } from 'react-i18next'
 
 interface FilterParams {
   userid?: string
@@ -60,6 +61,7 @@ interface UpdateMilkEntryData {
 
 const MilkManagement: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
+  const { t } = useTranslation()
   const { milkEntries, loading, error, pagination } = useSelector((state: RootState) => state.milk)
     const { data:settingdata, loading:setingloloading, error:settingError,  } = useSelector((state: RootState) => state.siteSettings);
   const { data: usersData } = useSelector((state: RootState) => state.user)
@@ -236,13 +238,13 @@ const MilkManagement: React.FC = () => {
       
       // Close modal and show success message
       setUpdateModalOpen(false)
-      toast.success('Milk entry updated successfully')
+      toast.success(t('milkManagement.updateSuccess'))
       
       // Refresh data
       fetchMilkData()
     } catch (error: any) {
       console.error('Error updating milk entry:', error)
-      toast.error(typeof error === 'string' ? error : 'Failed to update milk entry')
+      toast.error(typeof error === 'string' ? error : t('milkManagement.updateFailed'))
     } finally {
       setUpdateLoading(false)
     }
@@ -285,7 +287,7 @@ const MilkManagement: React.FC = () => {
   if (loading && (!milkEntries || milkEntries.length === 0)) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-gray-600">Loading milk management data...</div>
+        <div className="text-lg text-gray-600">{t('milkManagement.loading')}</div>
       </div>
     )
   }
@@ -293,7 +295,7 @@ const MilkManagement: React.FC = () => {
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-red-600">Error: {error}</div>
+        <div className="text-lg text-red-600">{t('milkManagement.errorPrefix')}: {error}</div>
       </div>
     )
   }
@@ -371,9 +373,9 @@ const nepalimonth =[
       <Card className="shadow-sm">
         <CardContent className="p-2 sm:p-4">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3">
-            <div className="text-base sm:text-lg font-semibold text-gray-800 mb-1 sm:mb-0">Milk Collection Records</div>
+            <div className="text-base sm:text-lg font-semibold text-gray-800 mb-1 sm:mb-0">{t('milkManagement.titleRecords')}</div>
             <div className="text-xs sm:text-sm text-gray-500">
-              Showing {formatNepaliNumber(filteredEntries.length)} of {formatNepaliNumber(pagination?.totalItems || 0)} records
+              {t('milkManagement.showingRecords', { shown: formatNepaliNumber(filteredEntries.length), total: formatNepaliNumber(pagination?.totalItems || 0) })}
             </div>
           </div>
           
@@ -421,7 +423,7 @@ const nepalimonth =[
                         {formatDate(entry.date)}
                       </TableCell>
                       <TableCell className="py-1.5 sm:py-2.5 max-w-[80px] sm:max-w-none truncate">
-                        {user?.name || 'Unknown'}
+                        {user?.name || t('milkManagement.unknownUser')}
                       </TableCell>
                       <TableCell className="py-1.5 sm:py-2.5 capitalize whitespace-nowrap">
                        {entry.session || "NA"} 
@@ -564,19 +566,19 @@ const nepalimonth =[
               <>
                 <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-2">
                   <div>
-                    <p className="text-xs sm:text-sm font-medium text-gray-500">User</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-500">{t('milkManagement.user')}</p>
                     <p className="text-sm sm:text-base font-medium">{users.find((u: any) => u._id === selectedEntry.userid)?.name}</p>
                   </div>
                   <div>
-                    <p className="text-xs sm:text-sm font-medium text-gray-500">Date</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-500">{t('milkManagement.date')}</p>
                     <p className="text-sm sm:text-base font-medium">{formatDate(selectedEntry.date)}</p>
                   </div>
                   <div>
-                    <p className="text-xs sm:text-sm font-medium text-gray-500">Session</p>
-                    <p className="text-sm sm:text-base font-medium">{selectedEntry.session === 'morning' ? 'Morning' : 'Night'}</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-500">{t('milkManagement.session')}</p>
+                    <p className="text-sm sm:text-base font-medium">{selectedEntry.session === 'morning' ? t('milkManagement.morning') : t('milkManagement.night')}</p>
                   </div>
                   <div>
-                    <p className="text-xs sm:text-sm font-medium text-gray-500">Month</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-500">{t('monthManagement.month')}</p>
                     <p className="text-sm sm:text-base font-medium">
                       {months?.find((m: any) => m._id === selectedEntry.monthid)?.month} 
                       {' '} 
@@ -586,7 +588,7 @@ const nepalimonth =[
                 </div>
 
                 <div className="space-y-1 sm:space-y-2">
-                  <Label htmlFor="milk" className="text-xs sm:text-sm">Milk Quantity (Liters)</Label>
+                  <Label htmlFor="milk" className="text-xs sm:text-sm">{t('milkManagement.milk')} (Liters)</Label>
                   <Input
                     id="milk"
                     type="number"
@@ -598,7 +600,7 @@ const nepalimonth =[
                 </div>
 
                 <div className="space-y-1 sm:space-y-2">
-                  <Label htmlFor="fat" className="text-xs sm:text-sm">Fat Percentage</Label>
+                  <Label htmlFor="fat" className="text-xs sm:text-sm">{t('milkManagement.fat')}</Label>
                   <Input
                     id="fat"
                     type="number"
@@ -610,7 +612,7 @@ const nepalimonth =[
                 </div>
 
                 <div className="space-y-1 sm:space-y-2">
-                  <Label htmlFor="money" className="text-xs sm:text-sm">Amount (Rs.)</Label>
+                  <Label htmlFor="money" className="text-xs sm:text-sm">{t('milkManagement.amount')}</Label>
                   <Input
                     id="money"
                     type="number"
@@ -630,7 +632,7 @@ const nepalimonth =[
               onClick={() => setUpdateModalOpen(false)}
               className="text-xs sm:text-sm h-8 sm:h-9"
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button 
               onClick={handleUpdateMilkEntry} 
@@ -640,10 +642,10 @@ const nepalimonth =[
               {updateLoading ? (
                 <>
                   <div className="animate-spin mr-2 h-3 w-3 sm:h-4 sm:w-4 border-2 border-current border-t-transparent rounded-full"></div>
-                  Updating...
+                  {t('milkManagement.updating')}
                 </>
               ) : (
-                'Update Entry'
+                t('milkManagement.updateEntry')
               )}
             </Button>
           </DialogFooter>
@@ -655,10 +657,10 @@ const nepalimonth =[
         open={deleteModalOpen}
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
-        title="Confirm Delete"
-        description="Are you sure you want to delete this milk entry? This action cannot be undone."
-        confirmText="Delete"
-        cancelText="Cancel"
+        title={t('milkManagement.confirmDeleteTitle')}
+        description={t('milkManagement.confirmDeleteMessage')}
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
       />
     </div>
     </>

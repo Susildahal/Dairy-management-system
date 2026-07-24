@@ -10,6 +10,8 @@ import { Badge } from '@/components/ui/badge'
 import { Users, Milk, DollarSign, TrendingUp, Calendar, Settings, FileText } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { AdminPDFModal } from './components/AdminPDFModal'
+import { useTranslation } from 'react-i18next'
+import i18n from '@/i18n'
 
 export default function AdminDashboard() {
   const dispatch = useDispatch<AppDispatch>()
@@ -21,6 +23,7 @@ export default function AdminDashboard() {
   const { months } = useSelector((state: RootState) => state.months)
   const { data: siteSettings } = useSelector((state: RootState) => state.siteSettings)
   const [showPDFModal, setShowPDFModal] = useState(false)
+  const { t } = useTranslation()
 
   useEffect(() => {
     dispatch(getdata())
@@ -47,7 +50,7 @@ export default function AdminDashboard() {
   const totalRevenue = currentMonthTotal?.totalMoney || 0
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', { 
+    return date.toLocaleTimeString(i18n.language && i18n.language.startsWith('np') ? 'ne-NP' : 'en-US', { 
       hour: '2-digit', 
       minute: '2-digit', 
       second: '2-digit',
@@ -56,7 +59,7 @@ export default function AdminDashboard() {
   }
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', { 
+    return date.toLocaleDateString(i18n.language && i18n.language.startsWith('np') ? 'ne-NP' : 'en-US', { 
       weekday: 'long', 
       year: 'numeric', 
       month: 'long', 
@@ -72,10 +75,10 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-                Admin Dashboard
+                {t('dashboard.admin.title')}
               </h1>
               <p className="text-gray-600 dark:text-gray-400 text-lg">
-                Welcome back! Here's what's happening with your dairy farm today.
+                {t('dashboard.admin.welcome')}
               </p>
             </div>
             <div className="text-right">
@@ -97,7 +100,7 @@ export default function AdminDashboard() {
                 <div className="flex items-center gap-3">
                   <Calendar className="w-8 h-8" />
                   <div>
-                    <p className="text-sm opacity-90">Active Month</p>
+                    <p className="text-sm opacity-90">{t('dashboard.admin.activeMonth')}</p>
                     <p className="text-2xl font-bold">
                       {activeMonth.month} {activeMonth.year}
                     </p>
@@ -115,7 +118,7 @@ export default function AdminDashboard() {
           <Card className=" duration-300 border-t-4 border-t-blue-500">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Total Users
+                {t('dashboard.admin.totalUsers')}
               </CardTitle>
               <Users className="h-5 w-5 text-blue-500" />
             </CardHeader>
@@ -124,10 +127,10 @@ export default function AdminDashboard() {
                 {usersLoading ? '...' : totalUsers}
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {activeUsers} active • {totalUsers - activeUsers} inactive
+                {activeUsers} {t('dashboard.admin.usersActive')} • {totalUsers - activeUsers} {t('dashboard.admin.usersInactive')}
               </p>
               <Link to="/admin/users" className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 mt-2 inline-block">
-                View all users →
+                {t('dashboard.admin.viewAllUsers')}
               </Link>
             </CardContent>
           </Card>
@@ -136,7 +139,7 @@ export default function AdminDashboard() {
           <Card className=" duration-300 border-t-4 border-t-green-500">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Total Milk (This Month)
+                {t('dashboard.admin.totalMilkThisMonth')}
               </CardTitle>
               <Milk className="h-5 w-5 text-green-500" />
             </CardHeader>
@@ -145,10 +148,10 @@ export default function AdminDashboard() {
                 {milkLoading ? '...' : totalMilk.toFixed(2)}
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Liters collected
+                {t('dashboard.admin.litersCollected')}
               </p>
               <Link to="/admin/milk-management" className="text-xs text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 mt-2 inline-block">
-                View milk records →
+                {t('dashboard.admin.viewMilkRecords')}
               </Link>
             </CardContent>
           </Card>
@@ -157,7 +160,7 @@ export default function AdminDashboard() {
           <Card className="  duration-300 border-t-4 border-t-yellow-500">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Total Revenue
+                {t('dashboard.admin.totalRevenue')}
               </CardTitle>
               <DollarSign className="h-5 w-5 text-yellow-500" />
             </CardHeader>
@@ -166,12 +169,12 @@ export default function AdminDashboard() {
                 ₹{milkLoading ? '...' : totalRevenue.toFixed(2)}
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Current month earnings
+                {t('dashboard.admin.currentMonthEarnings')}
               </p>
               <div className="flex items-center gap-1 mt-2">
                 <TrendingUp className="h-3 w-3 text-green-500" />
                 <span className="text-xs text-green-600 dark:text-green-400">
-                  {activeMonth ? `${activeMonth.month}` : 'No active month'}
+                  {activeMonth ? `${activeMonth.month}` : t('dashboard.admin.noActiveMonth')}
                 </span>
               </div>
             </CardContent>
@@ -181,7 +184,7 @@ export default function AdminDashboard() {
           <Card className=" duration-300 border-t-4 border-t-purple-500">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Administrators
+                {t('dashboard.admin.administrators')}
               </CardTitle>
               <Settings className="h-5 w-5 text-purple-500" />
             </CardHeader>
@@ -190,10 +193,10 @@ export default function AdminDashboard() {
                 {usersLoading ? '...' : adminCount}
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                System administrators
+                {t('dashboard.admin.systemAdministrators')}
               </p>
               <Link to="/admin/settings" className="text-xs text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300 mt-2 inline-block">
-                Manage settings →
+                {t('dashboard.admin.manageSettings')}
               </Link>
             </CardContent>
           </Card>
@@ -204,8 +207,8 @@ export default function AdminDashboard() {
           {/* Quick Actions Card */}
           <Card className="">
             <CardHeader>
-              <CardTitle className="text-xl">Quick Actions</CardTitle>
-              <CardDescription>Frequently used operations</CardDescription>
+              <CardTitle className="text-xl">{t('dashboard.admin.quickActionsTitle')}</CardTitle>
+              <CardDescription>{t('dashboard.admin.quickActionsSubtitle')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <Link 
@@ -217,8 +220,8 @@ export default function AdminDashboard() {
                     <Milk className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900 dark:text-white">Add Milk Entry</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Record new milk collection</p>
+                    <p className="font-semibold text-gray-900 dark:text-white">{t('dashboard.admin.addMilkEntry')}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{t('dashboard.admin.recordMilkCollection')}</p>
                   </div>
                 </div>
                 <span className="text-blue-600 dark:text-blue-400 group-hover:translate-x-1 transition-transform">→</span>
@@ -233,8 +236,8 @@ export default function AdminDashboard() {
                     <Users className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900 dark:text-white">Create New User</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Add a new user to system</p>
+                    <p className="font-semibold text-gray-900 dark:text-white">{t('dashboard.admin.createNewUser')}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{t('dashboard.admin.addUserToSystem')}</p>
                   </div>
                 </div>
                 <span className="text-green-600 dark:text-green-400 group-hover:translate-x-1 transition-transform">→</span>
@@ -249,8 +252,8 @@ export default function AdminDashboard() {
                     <Calendar className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900 dark:text-white">Manage Months</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Create and activate months</p>
+                    <p className="font-semibold text-gray-900 dark:text-white">{t('dashboard.admin.manageMonths')}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{t('dashboard.admin.createAndActivateMonths')}</p>
                   </div>
                 </div>
                 <span className="text-purple-600 dark:text-purple-400 group-hover:translate-x-1 transition-transform">→</span>
@@ -265,8 +268,8 @@ export default function AdminDashboard() {
                     <FileText className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-left">
-                    <p className="font-semibold text-gray-900 dark:text-white">Generate PDF Report</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Download monthly milk reports</p>
+                    <p className="font-semibold text-gray-900 dark:text-white">{t('dashboard.admin.generatePdfReport')}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{t('dashboard.admin.downloadMonthlyMilkReports')}</p>
                   </div>
                 </div>
                 <span className="text-orange-600 dark:text-orange-400 group-hover:translate-x-1 transition-transform">→</span>
@@ -277,31 +280,31 @@ export default function AdminDashboard() {
           {/* System Information Card */}
           <Card className="">
             <CardHeader>
-              <CardTitle className="text-xl">System Information</CardTitle>
-              <CardDescription>Current system configuration</CardDescription>
+              <CardTitle className="text-xl">{t('dashboard.admin.systemInformation')}</CardTitle>
+              <CardDescription>{t('dashboard.admin.currentSystemConfiguration')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {siteSettings ? (
                 <>
                   <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Farm Name</span>
-                    <span className="font-semibold text-gray-900 dark:text-white">{siteSettings.name || 'Not Set'}</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{t('dashboard.admin.farmName')}</span>
+                    <span className="font-semibold text-gray-900 dark:text-white">{siteSettings.name || t('common.notSet')}</span>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Contact Email</span>
-                    <span className="font-semibold text-gray-900 dark:text-white">{siteSettings.email || 'Not Set'}</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{t('dashboard.admin.contactEmail')}</span>
+                    <span className="font-semibold text-gray-900 dark:text-white">{siteSettings.email || t('common.notSet')}</span>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Contact Phone</span>
-                    <span className="font-semibold text-gray-900 dark:text-white">{siteSettings.phone || 'Not Set'}</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{t('dashboard.admin.contactPhone')}</span>
+                    <span className="font-semibold text-gray-900 dark:text-white">{siteSettings.phone || t('common.notSet')}</span>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">User Rate</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">{t('dashboard.admin.userRate')}</p>
                       <p className="text-xl font-bold text-blue-600 dark:text-blue-400">₹{siteSettings.rate_of_user || '0'}</p>
                     </div>
                     <div className="p-3 bg-green-50 dark:bg-green-950/30 rounded-lg">
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Admin Rate</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">{t('dashboard.admin.adminRate')}</p>
                       <p className="text-xl font-bold text-green-600 dark:text-green-400">₹{siteSettings.rate_of_admin || '0'}</p>
                     </div>
                   </div>
@@ -309,9 +312,9 @@ export default function AdminDashboard() {
               ) : (
                 <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                   <Settings className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>No system settings configured</p>
+                  <p>{t('dashboard.admin.notConfigured')}</p>
                   <Link to="/admin/settings" className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 mt-2 inline-block">
-                    Configure now →
+                    {t('dashboard.admin.configureNow')}
                   </Link>
                 </div>
               )}
@@ -322,30 +325,30 @@ export default function AdminDashboard() {
         {/* Recent Activity Section */}
         <Card className="mt-6 ">
           <CardHeader>
-            <CardTitle className="text-xl">Recent Activity Overview</CardTitle>
-            <CardDescription>Latest updates and statistics</CardDescription>
+            <CardTitle className="text-xl">{t('dashboard.admin.recentActivity')}</CardTitle>
+            <CardDescription>{t('dashboard.admin.latestUpdatesAndStatistics')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/20 dark:to-blue-900/20 rounded-lg">
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Active Users</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{t('dashboard.admin.activeUsers')}</p>
                 <p className="text-4xl font-bold text-blue-600 dark:text-blue-400">{activeUsers}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">Currently collecting milk</p>
+                <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">{t('dashboard.admin.currentlyCollectingMilk')}</p>
               </div>
               <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/20 dark:to-green-900/20 rounded-lg">
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Avg. Milk/User</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{t('dashboard.admin.avgMilkPerUser')}</p>
                 <p className="text-4xl font-bold text-green-600 dark:text-green-400">
                   {activeUsers > 0 ? (totalMilk / activeUsers).toFixed(1) : '0'}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">Liters per user</p>
+                <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">{t('dashboard.admin.litersPerUser')}</p>
               </div>
               <div className="text-center p-4 bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-950/20 dark:to-yellow-900/20 rounded-lg">
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">System Status</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{t('dashboard.admin.systemStatus')}</p>
                 <div className="flex items-center justify-center gap-2 mt-2">
                   <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                  <p className="text-lg font-bold text-gray-900 dark:text-white">Online</p>
+                  <p className="text-lg font-bold text-gray-900 dark:text-white">{t('dashboard.admin.online')}</p>
                 </div>
-                <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">All systems operational</p>
+                <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">{t('dashboard.admin.allSystemsOperational')}</p>
               </div>
             </div>
           </CardContent>

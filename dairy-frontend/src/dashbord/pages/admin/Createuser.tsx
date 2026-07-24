@@ -14,6 +14,7 @@ import AdminHeader from '@/dashbord/common/AdminHeader'
 import { useParams } from 'react-router-dom'
 import { Formik, Form, Field, ErrorMessage, FormikHelpers } from 'formik'
 import * as Yup from 'yup'
+import { useTranslation } from 'react-i18next'
 
 // Types
 interface UserFormValues {
@@ -44,6 +45,7 @@ const Createuser = ({ isedit = false }: { isedit?: boolean }) => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
   const { createLoading, updateLoading, data, error } = useSelector((state: RootState) => state.user);
   const { id } = useParams<{ id?: string }>();
   
@@ -71,38 +73,38 @@ const Createuser = ({ isedit = false }: { isedit?: boolean }) => {
   // Validation Schema
   const validationSchema = Yup.object({
     name: Yup.string()
-      .min(2, 'Name must be at least 2 characters')
-      .max(50, 'Name must be less than 50 characters')
-      .required('Full name is required'),
+      .min(2, t('createUser.validation.nameMin'))
+      .max(50, t('createUser.validation.nameMax'))
+      .required(t('createUser.validation.nameRequired')),
     
     email: Yup.string()
-      .email('Invalid email address')
-      .required('Email address is required'),
+      .email(t('createUser.validation.emailInvalid'))
+      .required(t('createUser.validation.emailRequired')),
     
     phone: Yup.string()
-      .matches(/^[0-9+\-\s()]+$/, 'Invalid phone number format')
-      .min(10, 'Phone number must be at least 10 digits')
-      .required('Phone number is required'),
+      .matches(/^[0-9+\-\s()]+$/, t('createUser.validation.phoneInvalid'))
+      .min(10, t('createUser.validation.phoneMin'))
+      .required(t('createUser.validation.phoneRequired')),
     
     password: isEditMode 
       ? Yup.string()
-          .min(6, 'Password must be at least 6 characters')
+          .min(6, t('createUser.validation.passwordMin'))
           .optional()
       : Yup.string()
-          .min(6, 'Password must be at least 6 characters')
-          .required('Password is required'),
+          .min(6, t('createUser.validation.passwordMin'))
+          .required(t('createUser.validation.passwordRequired')),
     
     tagnumber: Yup.string()
-      .required('Tag number is required'),
+      .required(t('createUser.validation.tagRequired')),
     
     both: Yup.string()
-      .oneOf(['true', 'false'], 'Please select a valid type')
-      .required('Type is required'),
+      .oneOf(['true', 'false'], t('createUser.validation.typeRequired'))
+      .required(t('createUser.validation.typeRequired')),
     
-    role: Yup.string().required('Role is required'),
+    role: Yup.string().required(t('createUser.validation.roleRequired')),
     maxUsers: Yup.number().when('role', {
       is: 'admin',
-      then: (schema) => schema.min(1, 'At least 1 user').required('Max users is required'),
+      then: (schema) => schema.min(1, t('createUser.validation.maxUsersMin')).required(t('createUser.validation.maxUsersRequired')),
       otherwise: (schema) => schema.optional()
     })
   });
@@ -151,7 +153,7 @@ const Createuser = ({ isedit = false }: { isedit?: boolean }) => {
             setInitialValues(userValues);
           })
           .catch((error: any) => {
-            toast.error('Failed to load user data');
+            toast.error(t('createUser.failedLoad'));
             navigate(isSuperAdminPath ? '/superadmin/admins' : '/admin/users');
           })
           .finally(() => {
@@ -190,7 +192,7 @@ const Createuser = ({ isedit = false }: { isedit?: boolean }) => {
         const payload = { id: id!, userData: updateData };
 
         await dispatch(updateUser(payload)).unwrap();
-        toast.success(isSuperAdminPath ? 'Admin updated successfully!' : 'User updated successfully!');
+        toast.success(isSuperAdminPath ? t('createUser.successUpdateAdmin') : t('createUser.successUpdateUser'));
       } else {
         // Create new user/admin
         const createPayload = { 
@@ -198,7 +200,7 @@ const Createuser = ({ isedit = false }: { isedit?: boolean }) => {
           both: values.both === 'true' 
         };
         await dispatch(register(createPayload)).unwrap();
-        toast.success(isSuperAdminPath ? 'Admin created successfully!' : 'User created successfully!');
+        toast.success(isSuperAdminPath ? t('createUser.successCreateAdmin') : t('createUser.successCreateUser'));
         
         // Reset form after successful creation
         resetForm();
@@ -212,19 +214,19 @@ const Createuser = ({ isedit = false }: { isedit?: boolean }) => {
     } catch (error) {
       console.error(`Error ${isEditMode ? 'updating' : 'creating'}:`, error);
       const message = typeof error === 'string' ? error : (error as any)?.message
-      toast.error(message || `Failed to ${isEditMode ? 'update' : 'create'} ${isSuperAdminPath ? 'admin' : 'user'}`)
+      toast.error(message || t('createUser.failedLoad'))
     } finally {
       setSubmitting(false);
     }
   }
 
   // UI labels based on role/path
-  const pageTitle = isSuperAdminPath ? "Admin Management" : "User Management";
+  const pageTitle = isSuperAdminPath ? t('dashboard.superAdmin.adminManagement') : t('usersManagement.title');
   const pageSubtitle = isEditMode 
-    ? `Edit ${isSuperAdminPath ? 'Administrator' : 'User'} information` 
-    : `Create a new ${isSuperAdminPath ? 'Administrator' : 'User'}`;
+    ? t('createUser.subtitleEdit', { entity: isSuperAdminPath ? t('dashboard.superAdmin.superAdminRole') : t('createUser.user') }) 
+    : t('createUser.subtitleCreate', { entity: isSuperAdminPath ? t('dashboard.superAdmin.superAdminRole') : t('createUser.user') });
   const backToPath = isSuperAdminPath ? "/superadmin/admins" : "/admin/users";
-  const backToLabel = isSuperAdminPath ? "View Admins" : "View Users";
+  const backToLabel = isSuperAdminPath ? t('usersManagement.viewAdmins') : t('usersManagement.viewUsers');
 
   // Show loading screen while fetching user data for edit
   if (isEditMode && initialLoading) {
@@ -232,7 +234,7 @@ const Createuser = ({ isedit = false }: { isedit?: boolean }) => {
       <div className="space-y-6">
         <AdminHeader 
           title={pageTitle} 
-          subtitle="Loading data..." 
+          subtitle={t('createUser.loading')} 
           linkname={backToLabel} 
           linkto={backToPath}
         />
@@ -240,7 +242,7 @@ const Createuser = ({ isedit = false }: { isedit?: boolean }) => {
           <CardContent className="p-8">
             <div className="flex items-center justify-center h-64">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              <span className="ml-3 text-muted-foreground">Loading data...</span>
+              <span className="ml-3 text-muted-foreground">{t('createUser.loading')}</span>
             </div>
           </CardContent>
         </Card>
@@ -264,7 +266,7 @@ const Createuser = ({ isedit = false }: { isedit?: boolean }) => {
                 <div className="p-2 bg-primary/10 rounded-lg">
                   {isSuperAdminPath ? <ShieldCheck className="w-5 h-5 text-primary" /> : <UserPlus className="w-5 h-5 text-primary" />}
                 </div>
-                <h3 className="text-xl font-semibold">{isEditMode ? 'Edit Profile' : 'Basic Information'}</h3>
+                <h3 className="text-xl font-semibold">{isEditMode ? t('createUser.editProfile') : t('createUser.basicInformation')}</h3>
              </div>
           </CardHeader>
           <CardContent className="p-8">
@@ -282,14 +284,14 @@ const Createuser = ({ isedit = false }: { isedit?: boolean }) => {
                     {/* Name Field */}
                     <div className="space-y-2">
                       <Label htmlFor="name" className="text-sm font-medium">
-                        Full Name <span className="text-red-500">*</span>
+                        {t('createUser.fullName')} <span className="text-red-500">*</span>
                       </Label>
                       <Field
                         as={Input}
                         id="name"
                         name="name"
                         type="text"
-                        placeholder="Enter full name"
+                        placeholder={t('createUser.enterFullName')}
                         className={`bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 ${
                           errors.name && touched.name ? 'border-red-500 focus:border-red-500' : ''
                         }`}
@@ -300,14 +302,14 @@ const Createuser = ({ isedit = false }: { isedit?: boolean }) => {
                     {/* Email Field */}
                     <div className="space-y-2">
                       <Label htmlFor="email" className="text-sm font-medium">
-                        Email Address <span className="text-red-500">*</span>
+                        {t('createUser.emailAddress')} <span className="text-red-500">*</span>
                       </Label>
                       <Field
                         as={Input}
                         id="email"
                         name="email"
                         type="email"
-                        placeholder="Enter email address"
+                        placeholder={t('createUser.enterEmail')}
                         className={`bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 ${
                           errors.email && touched.email ? 'border-red-500 focus:border-red-500' : ''
                         }`}
@@ -320,14 +322,14 @@ const Createuser = ({ isedit = false }: { isedit?: boolean }) => {
                     {/* Phone Field */}
                     <div className="space-y-2">
                       <Label htmlFor="phone" className="text-sm font-medium">
-                        Phone Number <span className="text-red-500">*</span>
+                        {t('createUser.phoneNumber')} <span className="text-red-500">*</span>
                       </Label>
                       <Field
                         as={Input}
                         id="phone"
                         name="phone"
                         type="tel"
-                        placeholder="Enter phone number"
+                        placeholder={t('createUser.enterPhone')}
                         className={`bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 ${
                           errors.phone && touched.phone ? 'border-red-500 focus:border-red-500' : ''
                         }`}
@@ -338,7 +340,7 @@ const Createuser = ({ isedit = false }: { isedit?: boolean }) => {
                     {/* Role Field */}
                     <div className="space-y-2 w-full">
                       <Label htmlFor="role" className="text-sm font-medium">
-                        Role <span className="text-red-500">*</span>
+                        {t('createUser.role')} <span className="text-red-500">*</span>
                       </Label>
                       <Select 
                         value={values.role} 
@@ -347,11 +349,11 @@ const Createuser = ({ isedit = false }: { isedit?: boolean }) => {
                         <SelectTrigger className={`bg-gray-50 dark:bg-gray-800 w-full border-gray-200 dark:border-gray-700 ${
                           errors.role && touched.role ? 'border-red-500 focus:border-red-500' : ''
                         }`}>
-                          <SelectValue placeholder="Select a role" />
+                          <SelectValue placeholder={t('createUser.selectRole')} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="admin">Admin</SelectItem>
-                          <SelectItem value="user">User</SelectItem>
+                          <SelectItem value="admin">{t('createUser.admin')}</SelectItem>
+                          <SelectItem value="user">{t('createUser.user')}</SelectItem>
                         </SelectContent>
                       </Select>
                       <ErrorMessage name="role" component="div" className="text-red-500 text-sm mt-1" />
@@ -360,13 +362,13 @@ const Createuser = ({ isedit = false }: { isedit?: boolean }) => {
                     {/* Max Users (Conditional) */}
                     {values.role === 'admin' && (
                       <div className="space-y-2">
-                        <Label htmlFor="maxUsers">Max Users</Label>
+                        <Label htmlFor="maxUsers">{t('createUser.maxUsers')}</Label>
                         <Field
                           as={Input}
                           id="maxUsers"
                           name="maxUsers"
                           type="number"
-                          placeholder="Enter max users"
+                          placeholder={t('createUser.enterMaxUsers')}
                         />
                         <ErrorMessage name="maxUsers" component="div" className="text-red-500 text-sm" />
                       </div>
@@ -375,14 +377,14 @@ const Createuser = ({ isedit = false }: { isedit?: boolean }) => {
                     {/* Tag Number Field */}
                     <div className="space-y-2">
                       <Label htmlFor="tagnumber" className="text-sm font-medium">
-                        Tag Number <span className="text-red-500">*</span>
+                        {t('createUser.tagNumber')} <span className="text-red-500">*</span>
                       </Label>
                       <Field
                         as={Input}
                         id="tagnumber"
                         name="tagnumber"
                         type="text"
-                        placeholder="Enter tag number"
+                        placeholder={t('createUser.enterTagNumber')}
                         className={`bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 ${
                           errors.tagnumber && touched.tagnumber ? 'border-red-500 focus:border-red-500' : ''
                         }`}
@@ -393,8 +395,8 @@ const Createuser = ({ isedit = false }: { isedit?: boolean }) => {
                     {/* Password Field */}
                     <div className="space-y-2">
                       <Label htmlFor="password" className="text-sm font-medium">
-                        Password {!isEditMode && <span className="text-red-500">*</span>}
-                        {isEditMode && <span className="text-sm text-gray-500 font-normal">(leave blank to keep current)</span>}
+                        {t('createUser.password')} {!isEditMode && <span className="text-red-500">*</span>}
+                        {isEditMode && <span className="text-sm text-gray-500 font-normal">{t('createUser.leaveBlank')}</span>}
                       </Label>
                       <div className="relative">
                         <Field
@@ -402,7 +404,7 @@ const Createuser = ({ isedit = false }: { isedit?: boolean }) => {
                           id="password"
                           name="password"
                           type={showPassword ? "text" : "password"}
-                          placeholder={isEditMode ? "Enter new password (optional)" : "Enter password"}
+                          placeholder={isEditMode ? t('createUser.enterNewPassword') : t('createUser.enterPassword')}
                           className={`bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 pr-10 ${
                             errors.password && touched.password ? 'border-red-500 focus:border-red-500' : ''
                           }`}
@@ -431,19 +433,19 @@ const Createuser = ({ isedit = false }: { isedit?: boolean }) => {
                       {(isLoading || isSubmitting) ? (
                         <>
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          {isEditMode ? 'Updating User...' : 'Creating User...'}
+                          {isEditMode ? t('createUser.processing') : t('createUser.processing')}
                         </>
                       ) : (
                         <>
                           {isEditMode ? (
                             <>
                               <Save className="w-4 h-4 mr-2" />
-                              Update {isSuperAdminPath ? 'Admin' : 'User'}
+                              {t('createUser.update')} {isSuperAdminPath ? t('createUser.admin') : t('createUser.user')}
                             </>
                           ) : (
                             <>
                               <UserPlus className="w-4 h-4 mr-2" />
-                              Create {isSuperAdminPath ? 'Admin' : 'User'}
+                              {t('createUser.create')} {isSuperAdminPath ? t('createUser.admin') : t('createUser.user')}
                             </>
                           )}
                         </>
@@ -458,7 +460,7 @@ const Createuser = ({ isedit = false }: { isedit?: boolean }) => {
                         disabled={isLoading || isSubmitting}
                       >
                         <ArrowLeft className="w-4 h-4 mr-2" />
-                        Cancel
+                        {t('common.cancel')}
                       </Button>
                     </Link>
                   </div>

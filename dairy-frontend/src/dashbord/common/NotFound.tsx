@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Home, ArrowLeft, Milk, Search } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 export default function NotFound() {
+  const { t } = useTranslation()
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center px-4">
       <div className="max-w-2xl mx-auto text-center">
@@ -23,13 +25,13 @@ export default function NotFound() {
         {/* Main Message */}
         <div className="mb-8">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Oops! Page Not Found
+            {t('notFound.title')}
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-400 mb-2">
-            Looks like this page wandered off to greener pastures.
+            {t('notFound.lead')}
           </p>
           <p className="text-gray-500 dark:text-gray-500">
-            The page you're looking for doesn't exist or has been moved.
+            {t('notFound.subtitle')}
           </p>
         </div>
 
@@ -38,7 +40,7 @@ export default function NotFound() {
           <div className="flex items-center justify-center mb-4">
             <Search className="w-6 h-6 text-gray-400 mr-2" />
             <span className="text-gray-600 dark:text-gray-400">
-              Try checking the URL or use these quick links:
+              {t('notFound.hint')}
             </span>
           </div>
           
@@ -54,7 +56,7 @@ export default function NotFound() {
           >
             <Link to="/dashboard">
               <Home className="w-5 h-5 mr-2" />
-              Back to Dashboard
+              {t('notFound.backToDashboard')}
             </Link>
           </Button>
           <Link to="/login">
@@ -65,7 +67,7 @@ export default function NotFound() {
             className="border-green-600 text-green-600 hover:bg-green-50 dark:border-green-400 dark:text-green-400 dark:hover:bg-green-900/20 px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
-            Go Back
+            {t('notFound.goBack')}
           </Button>
             </Link>
         </div>
@@ -74,12 +76,12 @@ export default function NotFound() {
         {/* Footer Message */}
         <div className="mt-12 text-center">
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Need help? Contact our support team or check our{" "}
+            {t('notFound.needHelp')}{" "}
             <Link 
               to="/help" 
               className="text-green-600 dark:text-green-400 hover:underline font-medium"
             >
-              help center
+              {t('notFound.helpCenter')}
             </Link>
           </p>
         </div>

@@ -9,11 +9,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Eye, Edit, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const AdminManagement = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { data: users, loading } = useSelector((state: RootState) => state.user);
+  const { t } = useTranslation();
 
   useEffect(() => {
     // Fetch all users; we'll filter for admins here
@@ -25,17 +27,17 @@ const AdminManagement = () => {
   return (
     <div className="space-y-6">
       <AdminHeader 
-        title="Admin Management" 
-        subtitle="View and manage system administrators" 
-        linkname="Create New Admin" 
+        title={t('dashboard.superAdmin.adminManagement')} 
+        subtitle={t('dashboard.superAdmin.viewAndManage')} 
+        linkname={t('dashboard.superAdmin.createNewAdmin')} 
         linkto="/superadmin/create-admin"
       />
       
       <Card className="shadow-sm">
         <CardHeader className="border-b bg-slate-50/50">
           <CardTitle className="text-xl font-bold flex items-center justify-between">
-            Administrator Accounts
-            <Badge variant="outline" className="ml-2 bg-white">{adminUsers.length} total</Badge>
+            {t('dashboard.superAdmin.administrators')}
+            <Badge variant="outline" className="ml-2 bg-white">{adminUsers.length} {t('dashboard.superAdmin.usersCount')}</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
@@ -43,21 +45,21 @@ const AdminManagement = () => {
             <TableHeader className="bg-slate-50">
               <TableRow>
                 <TableHead className="w-[50px]">#</TableHead>
-                <TableHead>Full Name</TableHead>
-                <TableHead>Email Address</TableHead>
-                <TableHead>Account Role</TableHead>
-                <TableHead>Capacity</TableHead>
-                <TableHead className="text-right pr-6">Manage</TableHead>
+                <TableHead>{t('dashboard.superAdmin.fullName')}</TableHead>
+                <TableHead>{t('dashboard.superAdmin.emailAddress')}</TableHead>
+                <TableHead>{t('dashboard.superAdmin.accountRole')}</TableHead>
+                <TableHead>{t('dashboard.superAdmin.capacity')}</TableHead>
+                <TableHead className="text-right pr-6">{t('dashboard.superAdmin.manage')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-12 text-slate-400">Loading administrators...</TableCell>
+                  <TableCell colSpan={6} className="text-center py-12 text-slate-400">{t('dashboard.superAdmin.loadingAdmins')}</TableCell>
                 </TableRow>
               ) : adminUsers.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-12 text-slate-400">No administrators found.</TableCell>
+                  <TableCell colSpan={6} className="text-center py-12 text-slate-400">{t('dashboard.superAdmin.noAdministrators')}</TableCell>
                 </TableRow>
               ) : (
                 adminUsers.map((admin, idx) => (
@@ -71,7 +73,7 @@ const AdminManagement = () => {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-slate-600">
-                      <span className="font-bold text-slate-800">{admin.maxUsers || 0}</span> Users
+                      <span className="font-bold text-slate-800">{admin.maxUsers || 0}</span> {t('dashboard.superAdmin.usersCount')}
                     </TableCell>
                     <TableCell className="text-right pr-6">
                       <div className="flex justify-end gap-2">
@@ -80,7 +82,7 @@ const AdminManagement = () => {
                           size="sm" 
                           className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                           onClick={() => navigate(`/superadmin/admin/${admin._id}/users`)}
-                          title="View Managed Users"
+                          title={t('dashboard.superAdmin.viewManagedUsers')}
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -89,7 +91,7 @@ const AdminManagement = () => {
                           size="sm" 
                           className="h-8 w-8 p-0 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
                           onClick={() => navigate(`/superadmin/edit-admin/${admin._id}`)}
-                          title="Edit Admin"
+                          title={t('dashboard.superAdmin.editAdmin')}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>

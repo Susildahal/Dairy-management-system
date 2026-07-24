@@ -3,6 +3,7 @@ import { RotateCcw, Download, Filter, Calendar, X } from "lucide-react";
 import { NepaliDatePicker } from "nepali-datepicker-reactjs";
 import "nepali-datepicker-reactjs/dist/index.css";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 import {
   Select,
   SelectContent,
@@ -124,6 +125,7 @@ const MilkManagementHeader: React.FC<MilkManagementHeaderProps> = ({
   selectedFilter,
   setSelectedFilter,
 }) => {
+  const { t } = useTranslation();
   return (
     <>
       <div className="mb-6">
@@ -137,10 +139,10 @@ const MilkManagementHeader: React.FC<MilkManagementHeaderProps> = ({
             </div>
             <div className="flex-1">
               <h2 className="text-sm sm:text-sm font-bold text-gray-900 dark:text-white tracking-tight">
-                Milk Management
+                {t('milkManagement.title')}
               </h2>
               <p className="text-base sm:text-base hidden md:block  dark:text-gray-400 mt-1">
-                Filter and manage daily milk collection records
+                {t('milkManagement.subtitle')}
               </p>
             </div>
           </div>
@@ -152,10 +154,10 @@ const MilkManagementHeader: React.FC<MilkManagementHeaderProps> = ({
               variant="outline"
               size="sm"
               className="border-gray-300 dark:border-gray-600 hover:bg-white dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-all"
-              title="Reset all filters"
+              title={t('milkManagement.resetTitle')}
             >
               <RotateCcw className="w-4 h-4 mr-2" />
-              <span className="hidden sm:inline">Reset</span>
+              <span className="hidden sm:inline">{t('milkManagement.reset')}</span>
             </Button>
         
           </div>
@@ -167,16 +169,16 @@ const MilkManagementHeader: React.FC<MilkManagementHeaderProps> = ({
 
             {/* User */}
             <div className="overflow-visible">
-              <FieldLabel htmlFor="user-filter">User</FieldLabel>
+              <FieldLabel htmlFor="user-filter">{t('milkManagement.user')}</FieldLabel>
               <Select
                 value={filters.userid || "all"}
                 onValueChange={(v) => handleFilterChange("userid", v === "all" ? "" : v)}
               >
                 <SelectTrigger id="user-filter" className="h-9 sm:h-10 w-full text-sm">
-                  <SelectValue placeholder="All users" />
+                  <SelectValue placeholder={t('milkManagement.allUsers')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All users</SelectItem>
+                  <SelectItem value="all">{t('milkManagement.allUsers')}</SelectItem>
                   {data?.map((u: any) => (
                     <SelectItem key={u._id} value={u._id}>
                       {u.name}
@@ -188,7 +190,7 @@ const MilkManagementHeader: React.FC<MilkManagementHeaderProps> = ({
 
             {/* Date (BS) — NepaliDatePicker */}
             <div className="overflow-visible relative ">
-              <FieldLabel htmlFor="date-filter">Date (BS)</FieldLabel>
+              <FieldLabel htmlFor="date-filter">{t('milkManagement.dateBS')}</FieldLabel>
               <div className="relative overflow-visible">
                 <NepaliDatePicker
                   inputClassName="
@@ -213,7 +215,7 @@ const MilkManagementHeader: React.FC<MilkManagementHeaderProps> = ({
 
             {/* Session */}
             <div>
-              <FieldLabel htmlFor="session-filter">Session</FieldLabel>
+              <FieldLabel htmlFor="session-filter">{t('milkManagement.session')}</FieldLabel>
               <Select
                 value={selectedFilter}
                 onValueChange={(v) => setSelectedFilter(v as Session)}
@@ -222,16 +224,16 @@ const MilkManagementHeader: React.FC<MilkManagementHeaderProps> = ({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">🌅 All Sessions</SelectItem>
-                  <SelectItem value="morning">☀️ Morning</SelectItem>
-                  <SelectItem value="night">🌙 Night</SelectItem>
+                  <SelectItem value="all">🌅 {t('milkManagement.allSessions')}</SelectItem>
+                  <SelectItem value="morning">☀️ {t('milkManagement.morning')}</SelectItem>
+                  <SelectItem value="night">🌙 {t('milkManagement.night')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {/* Per page */}
             <div>
-              <FieldLabel htmlFor="limit-filter">Rows Per Page</FieldLabel>
+              <FieldLabel htmlFor="limit-filter">{t('milkManagement.rowsPerPage')}</FieldLabel>
               <Select
                 value={String(filters.limit)}
                 onValueChange={(v) => handleFilterChange("limit", parseInt(v))}
@@ -240,11 +242,11 @@ const MilkManagementHeader: React.FC<MilkManagementHeaderProps> = ({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="5">5 rows</SelectItem>
-                  <SelectItem value="10">10 rows</SelectItem>
-                  <SelectItem value="25">25 rows</SelectItem>
-                  <SelectItem value="50">50 rows</SelectItem>
-                  <SelectItem value="100">100 rows</SelectItem>
+                  <SelectItem value="5">5 {t('milkManagement.rows')}</SelectItem>
+                  <SelectItem value="10">10 {t('milkManagement.rows')}</SelectItem>
+                  <SelectItem value="25">25 {t('milkManagement.rows')}</SelectItem>
+                  <SelectItem value="50">50 {t('milkManagement.rows')}</SelectItem>
+                  <SelectItem value="100">100 {t('milkManagement.rows')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>

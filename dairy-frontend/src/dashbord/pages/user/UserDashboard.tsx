@@ -14,6 +14,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Label } from "../../../components/ui/label"
 import {  FileText, RotateCcw, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react"
 import { useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import i18n from '@/i18n'
 interface FilterParams {
   userid?: string
   monthid?: string
@@ -58,6 +60,7 @@ const UserDashboard: React.FC = () => {
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'morning' | 'night'>('all')
   const [showUserReportModal, setShowUserReportModal] = useState(false)
   const [hasAppliedFilter, setHasAppliedFilter] = useState(false)
+  const { t } = useTranslation()
 
   useEffect(() => {
     if(!months || months.length === 0)
@@ -129,7 +132,7 @@ const UserDashboard: React.FC = () => {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-GB')
+    return new Date(dateString).toLocaleDateString(i18n.language && i18n.language.startsWith('np') ? 'ne-NP' : 'en-GB')
   }
 
   // Fixed formatNepaliNumber function to handle non-numeric inputs safely
@@ -149,7 +152,7 @@ const UserDashboard: React.FC = () => {
   if (loading && (!milkEntries || milkEntries.length === 0)) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-gray-600">Loading milk management data...</div>
+        <div className="text-lg text-gray-600">{t('userDashboard.loadingMilkData')}</div>
       </div>
     )
   }
@@ -157,7 +160,7 @@ const UserDashboard: React.FC = () => {
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-red-600">Error: {error}</div>
+        <div className="text-lg text-red-600">{t('userDashboard.errorPrefix')}: {error}</div>
       </div>
     )
   }
@@ -169,33 +172,33 @@ const UserDashboard: React.FC = () => {
       
       <div className="flex justify-between items-center border-b pb-3">
         <div>
-          <h1 className="text-2xl font-bold">My Milk Collection</h1>
+          <h1 className="text-2xl font-bold">{t('userDashboard.title')}</h1>
         </div>
         <Button onClick={() => setShowUserReportModal(true)} variant="outline" className='cursor-pointer' size="sm">
           <FileText className="w-4 h-4 mr-2" />
-          PDF Reports
+          {t('userDashboard.pdfReports')}
         </Button>
       </div>
 
       {/* Filters */}
       <div className="bg-white p-4 rounded border">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold">Filters</h2>
+          <h2 className="text-lg font-semibold">{t('userDashboard.filters')}</h2>
           <Button onClick={handleResetFilters} variant="ghost" size="sm">
             <RotateCcw className="w-4 h-4 mr-1" />
-            Reset
+            {t('userDashboard.reset')}
           </Button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
           {/* User Filter */}
           <div className="space-y-1">
-            <Label className="text-sm">User</Label>
+            <Label className="text-sm">{t('userDashboard.user')}</Label>
             <Select value={filters.userid || 'all'} onValueChange={(value) => handleFilterChange('userid', value === 'all' ? undefined : value)}>
               <SelectTrigger className="h-9 w-full">
-                <SelectValue placeholder="All Users" />
+                <SelectValue placeholder={t('userDashboard.allUsers')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Users</SelectItem>
+                <SelectItem value="all">{t('userDashboard.allUsers')}</SelectItem>
                 {data?.filter((u: any) => u.role === 'user').map((u: any) => (
                   <SelectItem key={u._id} value={u._id}>
                     {u.name} {u.tagnumber ? `(${u.tagnumber})` : ''}
@@ -207,13 +210,13 @@ const UserDashboard: React.FC = () => {
 
           {/* Month Filter */}
           <div className="space-y-1">
-            <Label className="text-sm">Month</Label>
+            <Label className="text-sm">{t('userDashboard.month')}</Label>
             <Select value={filters.monthid || 'all'} onValueChange={(value) => handleFilterChange('monthid', value === 'all' ? undefined : value)}>
               <SelectTrigger className="h-9 w-full">
-                <SelectValue placeholder="Select month" />
+                <SelectValue placeholder={t('userDashboard.month')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Months</SelectItem>
+                <SelectItem value="all">{t('userDashboard.allMonths')}</SelectItem>
                 {months?.map((month: any) => (
                   <SelectItem key={month._id} value={month._id}>
                     {month.month} {month.year}
@@ -225,22 +228,22 @@ const UserDashboard: React.FC = () => {
 
           {/* Session Filter */}
           <div className="space-y-1">
-            <Label className="text-sm">Session</Label>
+            <Label className="text-sm">{t('userDashboard.session')}</Label>
               <Select value={selectedFilter} onValueChange={handleSessionChange}>
               <SelectTrigger className="h-9 w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Sessions</SelectItem>
-                <SelectItem value="morning">Morning</SelectItem>
-                <SelectItem value="night">Night</SelectItem>
+                <SelectItem value="all">{t('userDashboard.allSessions')}</SelectItem>
+                <SelectItem value="morning">{t('userDashboard.morning')}</SelectItem>
+                <SelectItem value="night">{t('userDashboard.night')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* Records per page */}
           <div className="space-y-1">
-            <Label className="text-sm">Records per page</Label>
+            <Label className="text-sm">{t('userDashboard.recordsPerPage')}</Label>
             <Select value={String(filters.limit)} onValueChange={(value) => handleFilterChange('limit', parseInt(value))}>
               <SelectTrigger className="h-9 w-full">
                 <SelectValue />
@@ -263,8 +266,8 @@ const UserDashboard: React.FC = () => {
           <svg className="w-12 h-12 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
           </svg>
-          <p className="text-base font-medium text-gray-500">Select a filter to view records</p>
-          <p className="text-sm text-gray-400">Choose a user, month, or session above to load data</p>
+          <p className="text-base font-medium text-gray-500">{t('userDashboard.selectFilterTitle')}</p>
+          <p className="text-sm text-gray-400">{t('userDashboard.selectFilterSubtitle')}</p>
         </div>
       ) : (
         <>
@@ -272,7 +275,7 @@ const UserDashboard: React.FC = () => {
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-white p-3 rounded border text-center">
           <div className="text-xl font-bold">{formatNepaliNumber(pagination?.totalItems || 0)}</div>
-          <div className="text-xs text-gray-600">Total Records</div>
+          <div className="text-xs text-gray-600">{t('userDashboard.totalRecords')}</div>
         </div>
         <div className="bg-white p-3 rounded border text-center">
           <div className="text-xl font-bold text-green-600">
@@ -280,7 +283,7 @@ const UserDashboard: React.FC = () => {
               Math.round(filteredEntries.reduce((sum, entry) => sum + (entry.todaymilk || 0), 0) * 100) / 100
             )}
           </div>
-          <div className="text-xs text-gray-600">Total Milk (L)</div>
+          <div className="text-xs text-gray-600">{t('userDashboard.totalMilk')}</div>
         </div>
         <div className="bg-white p-3 rounded border text-center">
           <div className="text-xl font-bold text-blue-600">
@@ -288,29 +291,29 @@ const UserDashboard: React.FC = () => {
               Math.round(filteredEntries.reduce((sum, entry) => sum + (entry.todaymoney || 0), 0) * 100) / 100
             )}
           </div>
-          <div className="text-xs text-gray-600">Total Amount (Rs.)</div>
+          <div className="text-xs text-gray-600">{t('userDashboard.totalAmount')}</div>
         </div>
       </div>
 
       {/* Data Table */}
       <div className="bg-white rounded border">
         <div className="p-3 border-b">
-          <h2 className="font-semibold">Records</h2>
+          <h2 className="font-semibold">{t('userDashboard.records')}</h2>
           <p className="text-xs text-gray-600">
-            Showing {formatNepaliNumber(filteredEntries.length)} of {formatNepaliNumber(pagination?.totalItems || 0)} records
+            {t('userDashboard.showingRecords', { shown: formatNepaliNumber(filteredEntries.length), total: formatNepaliNumber(pagination?.totalItems || 0) })}
           </p>
         </div>
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>User</TableHead>
-                <TableHead>Session</TableHead>
-                <TableHead>Milk (L)</TableHead>
-                <TableHead>Fat %</TableHead>
-                <TableHead>Amount (Rs.)</TableHead>
-                <TableHead>Month</TableHead>
+                <TableHead>{t('userDashboard.date')}</TableHead>
+                <TableHead>{t('userDashboard.user')}</TableHead>
+                <TableHead>{t('userDashboard.session')}</TableHead>
+                <TableHead>{t('userDashboard.milk')}</TableHead>
+                <TableHead>{t('userDashboard.fatPercent')}</TableHead>
+                <TableHead>{t('userDashboard.amount')}</TableHead>
+                <TableHead>{t('userDashboard.month')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -327,7 +330,7 @@ const UserDashboard: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <Badge variant={entry.session === 'morning' ? 'default' : 'secondary'} className="text-xs">
-                        {entry.session === 'morning' ? 'Morning' : 'Night'}
+                        {entry.session === 'morning' ? t('userDashboard.morning') : t('userDashboard.night')}
                       </Badge>
                     </TableCell>
                     <TableCell className="font-semibold">
@@ -355,7 +358,7 @@ const UserDashboard: React.FC = () => {
         {pagination && pagination.totalPages > 1 && (
           <div className="flex items-center justify-between p-3 border-t">
             <div className="text-xs text-gray-600">
-              Page {formatNepaliNumber(pagination.currentPage)} of {formatNepaliNumber(pagination.totalPages)}
+              {t('userDashboard.pageOf', { current: formatNepaliNumber(pagination.currentPage), total: formatNepaliNumber(pagination.totalPages) })}
             </div>
             
             <div className="flex items-center space-x-1">

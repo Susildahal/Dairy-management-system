@@ -29,12 +29,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { useTranslation } from 'react-i18next'
 
 const UsersDetails = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { data = [], loading, deleteLoading, statusloading, error, lastFetched } = useSelector((state: RootState) => state.user)
   const { user: currentUser } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   
   // Filter users based on role
   // If Admin: only show their own created users (already filtered by backend, but safe to do here too)
@@ -78,7 +80,7 @@ const UsersDetails = () => {
     
     try {
       await dispatch(deleteuser(deleteDialog.userId)).unwrap();
-      toast.success(`User "${deleteDialog.userName}" deleted successfully!`);
+      toast.success(t('usersManagement.updatedSuccessfully'));
       setDeleteDialog({ isOpen: false, userId: null, userName: '' });
     } catch (error) {
       console.error('Error deleting user:', error);
@@ -94,7 +96,7 @@ const UsersDetails = () => {
     try {
       const newStatus = !currentStatus;
       await dispatch(updatestatus({ id, status: newStatus })).unwrap();
-      toast.success(`User "${userName}" status updated to ${newStatus ? 'Active' : 'Inactive'}!`);
+      toast.success(t('usersManagement.updatedStatus', { name: userName, status: newStatus ? t('usersManagement.active') : t('usersManagement.inactive') }));
     } catch (error) {
       console.error('Error updating user status:', error);
       // Error is already handled by the useEffect above
@@ -105,7 +107,7 @@ const UsersDetails = () => {
     try {
       const newBoth = !currentBoth;
       await dispatch(updatebothstatus({ id, both: newBoth })).unwrap();
-      toast.success(`User "${userName}" both status updated to ${newBoth ? 'Active' : 'Inactive'}!`);
+      toast.success(t('usersManagement.updatedBoth', { name: userName, status: newBoth ? t('usersManagement.active') : t('usersManagement.inactive') }));
     } catch (error) {
       console.error('Error updating user status:', error);
       // Error is already handled by the useEffect above
@@ -119,9 +121,9 @@ const UsersDetails = () => {
   <div className="space-y-4 w-full   mx-auto ">
 
       <AdminHeader 
-        title="User Management" 
-        subtitle="Manage and monitor all system users" 
-        linkname="Create User" 
+        title={t('usersManagement.title')} 
+        subtitle={t('usersManagement.subtitle')} 
+        linkname={t('usersManagement.createUser')} 
         linkto="/admin/users/create" 
       />
       
@@ -130,10 +132,10 @@ const UsersDetails = () => {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                All Users
+                {t('usersManagement.allUsers')}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                {filteredData.length} user(s) total
+                {t('usersManagement.totalUsers', { count: filteredData.length })}
               </p>
             </div>
           </div>
@@ -143,14 +145,14 @@ const UsersDetails = () => {
               <TableHeader>
                 <TableRow className="border-gray-200 dark:border-gray-700">
                   <TableHead className="font-semibold">#</TableHead>
-                  <TableHead className="font-semibold">Name</TableHead>
-                  <TableHead className="font-semibold">Email</TableHead>
-                  <TableHead className="font-semibold">Phone</TableHead>
-                  <TableHead className="font-semibold">Tag Number</TableHead>
-                  <TableHead className="font-semibold">Role</TableHead>
-                  <TableHead className="font-semibold">Status</TableHead>
-                  <TableHead className="font-semibold">Is both available</TableHead>
-                  <TableHead className="font-semibold text-right">Actions</TableHead>
+                  <TableHead className="font-semibold">{t('usersManagement.columns.name')}</TableHead>
+                  <TableHead className="font-semibold">{t('usersManagement.columns.email')}</TableHead>
+                  <TableHead className="font-semibold">{t('usersManagement.columns.phone')}</TableHead>
+                  <TableHead className="font-semibold">{t('usersManagement.columns.tagNumber')}</TableHead>
+                  <TableHead className="font-semibold">{t('usersManagement.columns.role')}</TableHead>
+                  <TableHead className="font-semibold">{t('usersManagement.columns.status')}</TableHead>
+                  <TableHead className="font-semibold">{t('usersManagement.columns.both')}</TableHead>
+                  <TableHead className="font-semibold text-right">{t('usersManagement.columns.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -162,9 +164,9 @@ const UsersDetails = () => {
                           <Eye className="h-8 w-8 text-gray-400" />
                         </div>
                         <div className="space-y-1">
-                          <p className="text-gray-500 font-medium">No users found</p>
+                          <p className="text-gray-500 font-medium">{t('usersManagement.noUsers')}</p>
                           <p className="text-sm text-gray-400">
-                            Create your first user to get started
+                            {t('usersManagement.firstUser')}
                           </p>
                         </div>
                       </div>
@@ -198,7 +200,7 @@ const UsersDetails = () => {
                             variant={user.status ? 'default' : 'secondary'}
                             className={user.status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}
                           >
-                            {user.status ? 'Active' : 'Inactive'}
+                            {user.status ? t('usersManagement.active') : t('usersManagement.inactive')}
                           </Badge>
                         </div>
                       </TableCell>
@@ -215,7 +217,7 @@ const UsersDetails = () => {
                             variant={user.both ? 'default' : 'secondary'}
                             className={user.both ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}
                           >
-                            {user.both  ? 'छ' : 'छैन'}
+                            {user.both  ? t('usersManagement.active') : t('usersManagement.inactive')}
                           </Badge>
                         </div>
                       </TableCell>
@@ -257,12 +259,12 @@ const UsersDetails = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-red-600">
               <AlertTriangle className="h-5 w-5" />
-              Confirm Delete
+              {t('usersManagement.confirmDeleteTitle')}
             </DialogTitle>
             <DialogDescription className="pt-3">
-              Are you sure you want to delete user <span className="font-semibold text-gray-900 dark:text-gray-100">"{deleteDialog.userName}"</span>?
+              {t('usersManagement.confirmDeleteMessage', { name: deleteDialog.userName })}
               <br />
-              <span className="text-red-600 font-medium">This action cannot be undone.</span>
+              <span className="text-red-600 font-medium">{t('usersManagement.confirmDeleteWarning')}</span>
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">
@@ -272,7 +274,7 @@ const UsersDetails = () => {
               onClick={cancelDelete}
               disabled={deleteLoading}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               type="button"
@@ -284,12 +286,12 @@ const UsersDetails = () => {
               {deleteLoading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Deleting...
+                  {t('usersManagement.deleting')}
                 </>
               ) : (
                 <>
                   <Trash2 className="h-4 w-4 mr-2" />
-                  Delete User
+                  {t('usersManagement.delete')}
                 </>
               )}
             </Button>

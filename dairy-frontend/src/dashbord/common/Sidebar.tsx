@@ -20,8 +20,7 @@ import {
 import { Link, useLocation } from "react-router-dom"
 import { useSelector } from "react-redux"
 import { RootState } from "../../store/store"
-import { AppDispatch } from "@/store/store";
-import { useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next"
 
 interface SidebarProps {
   className?: string
@@ -31,42 +30,42 @@ interface SidebarProps {
 
 const adminSidebarItems = [
   {
-    title: "Admin Dashboard",
+    titleKey: "sidebar.adminDashboard",
     icon: Home,
     href: "/admin/dashboard",
   },
   {
-    title: "User Dashboard",
+    titleKey: "sidebar.userDashboard",
     icon: BarChart3,
     href: "/admin/user-dashboard",
   },
   {
-    title: "Users Details",
+    titleKey: "sidebar.usersDetails",
     icon: Users,
     href: "/admin/users",
   },
   {
-    title: "Create User",
+    titleKey: "sidebar.createUser",
     icon: Users,
     href: "/admin/users/create",
   },
   {
-    title: "Add Daily Milk",
+    titleKey: "sidebar.manageDailyMilk",
     icon: FileText,
     href: "/admin/milk",
   },
   {
-    title: "Milk Management",
+    titleKey: "sidebar.milkManagement",
     icon: Milk,
     href: "/admin/milk-management",
   },
   {
-    title: "Add Month",
+    titleKey: "sidebar.addMonth",
     icon: BarChart3,
     href: "/admin/add-month",
   },
   {
-    title: "Settings",
+    titleKey: "sidebar.settings",
     icon: Settings,
     href: "/admin/settings",
   },
@@ -74,17 +73,17 @@ const adminSidebarItems = [
 
 const superadminSidebarItems = [
   {
-    title: "SuperAdmin Dashboard",
+    titleKey: "sidebar.superAdminDashboard",
     icon: Home,
     href: "/superadmin/dashboard",
   },
   {
-    title: "Admins",
+    titleKey: "sidebar.admins",
     icon: Users,
     href: "/superadmin/admins",
   },
   {
-    title: "Create Admin",
+    titleKey: "sidebar.createAdmin",
     icon: Users,
     href: "/superadmin/create-admin",
   },
@@ -184,8 +183,8 @@ const Sidebar = ({ className, onCollapsedChange, role }: SidebarProps) => {
   const [searchTerm, setSearchTerm] = useState("")
   const location = useLocation()
   const pathname = location.pathname
-  const { data } = useSelector((state: RootState) => state.mee)
-  const dispatch: AppDispatch = useDispatch()
+  const user = useSelector((state: RootState) => state.mee.data as any)
+  const { t } = useTranslation()
 
   // Sidebar doesn't need to fetch users list; specific pages handle their own requirements
   // mee data is fetched by Header.tsx
@@ -210,7 +209,7 @@ const Sidebar = ({ className, onCollapsedChange, role }: SidebarProps) => {
     items = superadminSidebarItems;
   }
   const filteredItems = items.filter(item =>
-    item.title.toLowerCase().includes(searchTerm.toLowerCase())
+    t(item.titleKey).toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   // Close mobile sidebar when route changes
@@ -226,7 +225,7 @@ const Sidebar = ({ className, onCollapsedChange, role }: SidebarProps) => {
         size="icon"
         onClick={toggleMobile}
         className="md:hidden fixed top-1 left-1 text-black sm:top-4 sm:left-4 z-50 h-12 w-12 sm:h-10 sm:w-10 dark:bg-gray-800 rounded-lg dark:hover:bg-gray-700 active:scale-95 transition-all touch-manipulation"
-        aria-label={isMobileOpen ? "Close menu" : "Open menu"}
+        aria-label={isMobileOpen ? t('sidebar.closeMenu') : t('sidebar.openMenu')}
       >
         {isMobileOpen ? <X className="h-6 w-6 sm:h-5 sm:w-5" /> :  <Menu className="h-6 w-6 sm:h-5 sm:w-5" />}
       </Button>
@@ -253,7 +252,7 @@ const Sidebar = ({ className, onCollapsedChange, role }: SidebarProps) => {
           <div className="flex items-center justify-between p-4 h-16  border-gray-200 dark:border-gray-700">
             {!isCollapsed && (
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
-                Dairy Farm
+                {t('sidebar.title')}
               </h2>
             )}
             <Button
@@ -261,7 +260,7 @@ const Sidebar = ({ className, onCollapsedChange, role }: SidebarProps) => {
               size="icon"
               onClick={toggleCollapsed}
               className="h-8 w-8 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex-shrink-0"
-              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              aria-label={isCollapsed ? t('sidebar.expandSidebar') : t('sidebar.collapseSidebar')}
             >
               {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
             </Button>
@@ -273,7 +272,7 @@ const Sidebar = ({ className, onCollapsedChange, role }: SidebarProps) => {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
-                  placeholder="Search menu..."
+                  placeholder={t('sidebar.searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 h-9"
@@ -297,14 +296,14 @@ const Sidebar = ({ className, onCollapsedChange, role }: SidebarProps) => {
                       )}
                     >
                       <item.icon className={cn("h-4 w-4", !isCollapsed && "mr-3")} />
-                      {!isCollapsed && <span>{item.title}</span>}
+                      {!isCollapsed && <span>{t(item.titleKey)}</span>}
                     </Button>
                   </Link>
                   
                   {/* Tooltip for collapsed state */}
                   {isCollapsed && (
                     <div className="absolute left-full ml-4 top-1/2 transform -translate-y-1/2 bg-gray-900 dark:bg-gray-700 text-white text-sm px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-50 shadow-lg">
-                      {item.title}
+                      {t(item.titleKey)}
                       {/* Arrow pointing to the icon */}
                       <div className="absolute left-[-6px] top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[6px] border-r-gray-900 dark:border-r-gray-700"></div>
                     </div>
@@ -319,16 +318,16 @@ const Sidebar = ({ className, onCollapsedChange, role }: SidebarProps) => {
             <div className={cn("flex items-center", isCollapsed ? "justify-center" : "space-x-3")}>
               <div className="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center">
                 <span className="text-sm font-medium text-white">
-                  {data?.name ? data.name.charAt(0).toUpperCase() : "A"}
+                  {user?.name ? user.name.charAt(0).toUpperCase() : "A"}
                 </span>
               </div>
               {!isCollapsed && (
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                    {data?.name || "Admin User"}
+                    {user?.name || t('header.adminUser')}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                    {data?.email || "admin@dairy.com"}
+                    {user?.email || t('header.adminEmail')}
                   </p>
                 </div>
               )}
@@ -351,14 +350,14 @@ const Sidebar = ({ className, onCollapsedChange, role }: SidebarProps) => {
           {/* Mobile Header */}
           <div className="flex items-center justify-between p-3 sm:p-4 h-14 sm:h-16 border-gray-200 dark:border-gray-700 flex-shrink-0">
             <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white truncate">
-              Dairy Farm
+              {t('sidebar.title')}
             </h2>
             <Button
               variant="ghost"
               size="icon"
               onClick={toggleMobile}
               className="h-9 w-9 sm:h-8 sm:w-8 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex-shrink-0 touch-manipulation"
-              aria-label="Close menu"
+              aria-label={t('sidebar.closeMenu')}
             >
               <X className="h-5 w-5 sm:h-4 sm:w-4" />
             </Button>
@@ -369,7 +368,7 @@ const Sidebar = ({ className, onCollapsedChange, role }: SidebarProps) => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Search menu..."
+                placeholder={t('sidebar.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 h-10 sm:h-9 text-base sm:text-sm"
@@ -390,7 +389,7 @@ const Sidebar = ({ className, onCollapsedChange, role }: SidebarProps) => {
                     )}
                   >
                     <item.icon className="h-5 w-5 sm:h-4 sm:w-4 mr-3 flex-shrink-0" />
-                    <span className="truncate">{item.title}</span>
+                    <span className="truncate">{t(item.titleKey)}</span>
                   </Button>
                 </Link>
               ))}
@@ -402,15 +401,15 @@ const Sidebar = ({ className, onCollapsedChange, role }: SidebarProps) => {
             <div className="flex items-center space-x-3">
               <div className="h-10 w-10 sm:h-8 sm:w-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
                 <span className="text-base sm:text-sm font-medium text-white">
-                  {data?.name ? data.name.charAt(0).toUpperCase() : "A"}
+                  {user?.name ? user.name.charAt(0).toUpperCase() : t('header.adminUser').charAt(0).toUpperCase()}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                  {data?.name || "Admin User"}
+                  {user?.name || t('header.adminUser')}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                  {data?.email || "admin@dairy.com"}
+                  {user?.email || t('header.adminEmail')}
                 </p>
               </div>
             </div>

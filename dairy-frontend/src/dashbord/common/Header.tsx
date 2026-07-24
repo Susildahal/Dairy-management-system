@@ -189,10 +189,10 @@ export function Header({ email, phone }: HeaderProps) {
             <DropdownMenuContent className="w-56 sm:w-64" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none truncate">Name: {user?.name || "Admin User"}</p>
-                  <p className="text-xs leading-none text-muted-foreground truncate">Email: {user?.email || "admin@dairy.com"}</p>
-                  <p className="text-xs leading-none text-muted-foreground truncate">Role: {user?.role || "Admin"}</p>
-                  <p className="text-xs leading-none text-muted-foreground truncate">Phone: {user?.phone || "343422334"}</p>
+                  <p className="text-sm font-medium leading-none truncate">{t('header.name')}: {user?.name || t('header.adminUser')}</p>
+                  <p className="text-xs leading-none text-muted-foreground truncate">{t('header.email')}: {user?.email || t('header.adminEmail')}</p>
+                  <p className="text-xs leading-none text-muted-foreground truncate">{t('header.role')}: {user?.role || t('header.adminRole')}</p>
+                  <p className="text-xs leading-none text-muted-foreground truncate">{t('header.phone')}: {user?.phone || t('header.adminPhone')}</p>
                 </div>
               </DropdownMenuLabel>
 
