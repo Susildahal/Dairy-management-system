@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 import path from "path";
 import axios from "axios";
 import { fileURLToPath } from "url";
-// import yearTransition from "./src/middleware/yearTransition.js";
 
 // Get current directory for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -23,7 +22,8 @@ import monthRouter from "./src/routes/month.js";
 import userRouter from "./src/routes/user.js";
 import milkrouter from "./src/routes/milk.js";
 import settingrouter from "./src/routes/sitesetting.js"
-
+import { verifySmtpConnection} from "./src/config/nodemiller.js"
+ 
 //middleware
 const app = express();
 app.use(express.json());
@@ -70,37 +70,43 @@ app.use('/api/setting', settingrouter);
 // Error handler middleware - must be used after all routes
 app.use(errorHandlerMiddleware);
 
-const api = async () => {
-    try {
-        const response = await axios.get('https://multi-vendor-o8bb.onrender.com/api/ping');
-        console.log(`Public IP Address: ${response.data}`);
+const fetchPublicIp = async () => {
+    // try {
+    //     // const response = await axios.get('https://multi-vendor-o8bb.onrender.com/api/ping');
+    //     console.log(`Public IP Address: ${response.data}`);
 
-    } catch (error) {
-        console.error('Error fetching public IP address:', error);
-    }
+    // } catch (error) {
+    //     console.error('Error fetching public IP address:', error);
+    // }
 
-}
+};
+
 
 setTimeout(() => {
-    api();
+    fetchPublicIp();
 }, 10 * 60 * 1000); // 10 minutes interval
 
 
-api(); // Call immediately on startup
+fetchPublicIp(); // Call immediately on startup
 
 setInterval(() => {
-    api();
+    fetchPublicIp();
 }, 10 * 60 * 1000); // Call every 10 minutes
 
 // Start server
+verifySmtpConnection()
 mongodbConnection()
     .then(() => {
         app.listen(port, "0.0.0.0", () => {
             console.log(`Server is running on port ${port}`);
+            // verifySmtpConnection();
+
+            if (process.env.SMTP_TEST_EMAIL === "true") {
+                sendTestEmail();
+            }
         });
     })
     .catch((error) => {
         console.error("Error starting server:", error);
     });
 
-// startCronJobs();

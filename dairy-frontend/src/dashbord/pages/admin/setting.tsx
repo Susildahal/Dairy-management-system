@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Save, Settings as SettingsIcon, User, Mail, Phone, DollarSign } from "lucide-react"
-import { Calendar } from "lucide-react";
 import { toast } from "sonner"
 import { useDispatch, useSelector } from 'react-redux'
 import { updatedata, getsettingdata, savedata } from "../../../store/slices/sitesettingSlicer"

@@ -1,0 +1,24 @@
+{
+  "app": {
+    "dairyFarm": "Dairy Farm",
+    "dashboard": "Dashboard"
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "usersDetails": "Users Details",
+    "createUser": "Create User",
+    "manageDailyMilk": "Manage Daily Milk",
+    "addMonth": "Add Month",
+    "settings": "Settings",
+    "userMonthlyReports": "User Monthly Reports",
+    "adminMonthlyReports": "Admin Monthly Reports"
+  },
+  "menu": {
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Log out",
+    "language": "Language",
+    "english": "English",
+    "nepali": "Nepali"
+  }
+}

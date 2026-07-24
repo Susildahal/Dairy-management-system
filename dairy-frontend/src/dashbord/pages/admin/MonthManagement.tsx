@@ -3,13 +3,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import AdminHeader from '@/dashbord/common/AdminHeader'
 import { 
   Dialog, 
   DialogContent, 
   DialogDescription, 
   DialogHeader, 
   DialogTitle, 
-  DialogTrigger,
+  DialogTrigger,  
   DialogFooter
 } from "@/components/ui/dialog"
 import {
@@ -36,7 +37,6 @@ import {
   CheckCircle, 
   Circle, 
   Trash2,
-  Filter,
   AlertTriangle
 } from "lucide-react"
 import { toast } from "sonner"
@@ -198,7 +198,7 @@ const MonthManagement = () => {
       {/* Header Section */}
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center gap-3">
+          {/* <div className="flex items-center gap-3">
             <div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-lg">
               <Calendar className="h-6 w-6 text-green-600" />
             </div>
@@ -210,7 +210,23 @@ const MonthManagement = () => {
                 Manage dairy farm operational months and activate current period
               </p>
             </div>
-          </div>
+          </div> */}
+                <div className="flex items-center gap-4">
+        <div className="p-3 sm:p-4 ">
+          <Calendar className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600 dark:text-blue-400" />
+        </div>
+
+        <div className="flex-1">
+          <CardTitle className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white tracking-tight">
+                            Month Management
+
+          </CardTitle>
+          <CardDescription className="text-base sm:text-base text-gray-600 dark:text-gray-400 mt-1">
+            Manage dairy farm operational months and activate current period
+
+          </CardDescription>
+        </div>
+      </div>
 
           <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
             <DialogTrigger asChild>

@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "ip": "node get-ip.js"
+    "ip": "node get-ip.js",
+    "seed:superadmin": "node --input-type=module -e \"import('./src/scripts/createSuperAdmin.js').then((m) => m.default())\""
   },
   "keywords": [],
   "author": "",
@@ -25,6 +26,7 @@
     "nepali-date-converter": "^3.4.0",
     "nepali-react-datepicker": "^0.1.9",
     "node-cron": "^4.2.1",
+    "nodemailer": "^9.0.3",
     "nodemon": "^3.1.10"
   }
 }

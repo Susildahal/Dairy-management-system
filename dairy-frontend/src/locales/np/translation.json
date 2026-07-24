@@ -1,0 +1,24 @@
+{
+  "app": {
+    "dairyFarm": "डेरी फार्म",
+    "dashboard": "ड्यासबोर्ड"
+  },
+  "sidebar": {
+    "dashboard": "ड्यासबोर्ड",
+    "usersDetails": "प्रयोगकर्ताको विवरण",
+    "createUser": "प्रयोगकर्ता सिर्जना",
+    "manageDailyMilk": "दैनिकी दूध व्यवस्थापन",
+    "addMonth": "महिना थप्नुहोस्",
+    "settings": "सेटिङ्स",
+    "userMonthlyReports": "प्रयोगकर्ता मासिक रिपोर्ट",
+    "adminMonthlyReports": "व्यवस्थापक मासिक रिपोर्ट"
+  },
+  "menu": {
+    "profile": "प्रोफाइल",
+    "settings": "सेटिङ्स",
+    "logout": "लगआउट",
+    "language": "भाषा",
+    "english": "अंग्रेजी",
+    "nepali": "नेपाली"
+  }
+}

@@ -20,7 +20,6 @@ import {
 import { Link, useLocation } from "react-router-dom"
 import { useSelector } from "react-redux"
 import { RootState } from "../../store/store"
-import { getdata as getUsers } from "@/store/slices/userSlicer";
 import { AppDispatch } from "@/store/store";
 import { useDispatch } from "react-redux";
 

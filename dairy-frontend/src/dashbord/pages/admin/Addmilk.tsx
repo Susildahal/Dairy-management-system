@@ -606,12 +606,12 @@ const Addmilk = () => {
 
             return (
               <div className="space-y-6">
-                <div className=" dark:bg-gray-800   w-full overflow-x-auto">
+                <div className=" dark:bg-gray-800   w-full ">
                   <div className="flex  items-center gap-6">
                     {/* Date Picker */}
-                    <div className="flex items-center gap-3">
-                      <Label className="text-xs font-bold text-gray-500 uppercase tracking-wider shrink-0 hidden md:block">Date</Label>
-                      <div className="relative w-44">
+                    <div className="flex gap-3">
+                      <Label className="text-xs font-bold text-gray-500 uppercase tracking-wider shrink-0 ">Date</Label>
+                      <div className="relative">
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none z-10">
                           <Calendar className="w-4 h-4 text-slate-400" />
                         </span>
@@ -640,9 +640,9 @@ const Addmilk = () => {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="morning">☀️ Morning</SelectItem>
-                          <SelectItem value="night">🌙 Night</SelectItem>
-                          <SelectItem value="all">☀️🌙 All</SelectItem>
+                          <SelectItem value="morning"> Morning</SelectItem>
+                          <SelectItem value="night">Night</SelectItem>
+                          <SelectItem value="all"> All</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

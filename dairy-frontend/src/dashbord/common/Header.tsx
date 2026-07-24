@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Settings, User, Menu, Home, Users, BarChart3, FileText, Mail, Calendar } from "lucide-react"
+import { Settings, User, Menu, Home, Users, BarChart3, FileText, Mail, Calendar, LogOut, Landmark } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -12,93 +12,97 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Link, useLocation } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { useSelector, useDispatch } from "react-redux"
 import { getmee } from "../../store/slices/meeSlicer"
 import { RootState, AppDispatch } from "../../store/store"
 import { useAuth } from "@/hooks/useAuth"
 import axiosInstance from "@/utils/axiosInstance"
-import { useNavigate } from "react-router-dom"
+import { Switch } from "@/components/ui/switch"
+import { useTranslation } from 'react-i18next'
+import i18n from '@/i18n'
+
 const sidebarItems = [
   {
-    title: "Dashboard",
+    titleKey: "sidebar.dashboard",
     icon: Home,
     href: "/admin/dashboard",
   },
   {
-    title: "Users Details",
+    titleKey: "sidebar.usersDetails",
     icon: Users,
     href: "/admin/users",
   },
   {
-    title: "Create User",
+    titleKey: "sidebar.createUser",
     icon: Users,
     href: "/admin/users/create",
   },
   {
-    title: "Manage Daily Milk",
+    titleKey: "sidebar.manageDailyMilk",
     icon: FileText,
     href: "/admin/milk",
   },
   {
-    title: "Add Month",
+    titleKey: "sidebar.addMonth",
     icon: BarChart3,
     href: "/admin/add-month",
   },
   {
-    title: "Settings",
+    titleKey: "sidebar.settings",
     icon: Settings,
     href: "/admin/settings",
   },
   {
-    title: "User Monthly Reports",
+    titleKey: "sidebar.userMonthlyReports",
     icon: Mail,
     href: "/admin/user-reports",
   },
   {
-    title: "Admin Monthly Reports",
+    titleKey: "sidebar.adminMonthlyReports",
     icon: Calendar,
     href: "/admin/admin-reports",
   },
 ]
 
-export function Header() {
+interface HeaderProps {
+  email: string;
+  phone: string;
+}
+
+export function Header({ email, phone }: HeaderProps) {
   const navigate = useNavigate()
   const dispatch = useDispatch<AppDispatch>()
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const { data, loading, error } = useSelector((state: RootState) => state.mee)
   const { logout } = useAuth()
+  const { t } = useTranslation()
+
+  // state.mee.data may be an untyped object; cast to any for safe property access
+  const user = data as any
 
   useEffect(() => {
-    // Only fetch user data if:
-    // 1. Data doesn't exist AND not currently loading AND no existing error
-    const shouldFetch = !data && !loading && !error;
-    
-    if (shouldFetch) {
-      dispatch(getmee())
-    }
+    const shouldFetch = !data && !loading && !error
+    if (shouldFetch) dispatch(getmee())
   }, [dispatch, data, loading, error])
 
   const handleLogout = () => {
- axiosInstance.post('users/user/logout')
+    axiosInstance.post('users/user/logout')
       .then(() => {
         logout()
-       navigate('/login')
-       localStorage.removeItem('flag')
+        navigate('/login')
+        localStorage.removeItem('flag')
       })
-      .catch((error) => {
-        console.error('Logout failed:', error)
-        // Still proceed to logout on client side
+      .catch((err) => {
+        console.error('Logout failed:', err)
         logout()
       })
   }
 
-  
   const location = useLocation()
   const pathname = location.pathname
 
-  // Close mobile sidebar when route changes
   useEffect(() => {
     setIsMobileOpen(false)
   }, [pathname])
@@ -106,7 +110,6 @@ export function Header() {
   return (
     <header className="sticky top-0 z-30 w-full border-b border-gray-200 dark:border-gray-700 bg-white/95 dark:bg-gray-800/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-800/60">
       <div className="flex h-12 sm:h-14 md:h-16 items-center justify-between px-3 sm:px-4 md:px-6">
-        {/* Left side - Title and mobile menu */}
         <div className="flex items-center gap-2 sm:gap-3">
           <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
             <SheetTrigger asChild>
@@ -116,12 +119,10 @@ export function Header() {
             </SheetTrigger>
             <SheetContent side="left" className="w-64 p-0 bg-white dark:bg-gray-800">
               <div className="flex flex-col h-full">
-                {/* Header */}
                 <div className="flex items-center p-4 h-14 sm:h-16 border-b border-gray-200 dark:border-gray-700">
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Dairy Farm</h2>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t('app.dairyFarm')}</h2>
                 </div>
 
-                {/* Navigation */}
                 <ScrollArea className="flex-1 px-3 py-4">
                   <nav className="space-y-2">
                     {sidebarItems.map((item) => (
@@ -134,27 +135,26 @@ export function Header() {
                           )}
                         >
                           <item.icon className="h-4 w-4 mr-3" />
-                          <span>{item.title}</span>
+                          <span>{t(item.titleKey as string)}</span>
                         </Button>
                       </Link>
                     ))}
                   </nav>
                 </ScrollArea>
 
-                {/* Footer */}
                 <div className="p-4 border-t border-gray-200 dark:border-gray-700">
                   <div className="flex items-center space-x-3">
                     <div className="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center">
                       <span className="text-sm font-medium text-white">
-                        {data?.name ? data.name.charAt(0).toUpperCase() : "A"}
+                        {user?.name ? user.name.charAt(0).toUpperCase() : "A"}
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                        {data?.name || "Admin User"}
+                        {user?.name || "Admin User"}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                        {data?.email || "admin@dairy.com"}
+                        {user?.email || "admin@dairy.com"}
                       </p>
                     </div>
                   </div>
@@ -163,34 +163,25 @@ export function Header() {
             </SheetContent>
           </Sheet>
 
-          {/* Page Title - visible on larger screens */}
           <div className="hidden sm:block">
             <h1 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-900 dark:text-white truncate">
-              Dashboard
+              {t('app.dashboard')}
             </h1>
           </div>
         </div>
 
-        {/* Right side - User menu and actions */}
         <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
-          {/* Notifications - visible on larger screens */}
-          {/* <div className="hidden md:flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
-              <Mail className="h-4 w-4 sm:h-5 sm:w-5" />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
-              <Settings className="h-4 w-4 sm:h-5 sm:w-5" />
-            </Button>
-          </div> */}
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => i18n.changeLanguage(i18n.language && i18n.language.startsWith('np') ? 'en' : 'np')}>
+            {(i18n.language || 'en').slice(0, 2).toUpperCase()}
+          </Button>
 
-          {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-full p-0">
                 <Avatar className="h-8 w-8 sm:h-9 sm:w-9 md:h-6 md:w-6">
-                  <AvatarImage src={data?.avatar || "/diverse-user-avatars.png"} alt="User" />
+                  <AvatarImage src={user?.avatar || "/diverse-user-avatars.png"} alt="User" />
                   <AvatarFallback className="text-xs sm:text-sm bg-green-500 text-white">
-                    {data?.name ? data.name.charAt(0).toUpperCase() : "A"}
+                    {user?.name ? user.name.charAt(0).toUpperCase() : "A"}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -198,33 +189,37 @@ export function Header() {
             <DropdownMenuContent className="w-56 sm:w-64" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none truncate">
-                    Name: {data?.name || "Admin User"}
-                  </p>
-                  <p className="text-xs leading-none text-muted-foreground truncate">
-                    Email: {data?.email || "admin@dairy.com"}
-                  </p>
-                  <p className="text-xs leading-none text-muted-foreground truncate">
-                    Role: {data?.role || "Admin"}
-                  </p>
-                  <p className="text-xs leading-none text-muted-foreground truncate">
-                    Phone: {data?.phone || "343422334"}
-                  </p>
+                  <p className="text-sm font-medium leading-none truncate">Name: {user?.name || "Admin User"}</p>
+                  <p className="text-xs leading-none text-muted-foreground truncate">Email: {user?.email || "admin@dairy.com"}</p>
+                  <p className="text-xs leading-none text-muted-foreground truncate">Role: {user?.role || "Admin"}</p>
+                  <p className="text-xs leading-none text-muted-foreground truncate">Phone: {user?.phone || "343422334"}</p>
                 </div>
               </DropdownMenuLabel>
+
               <DropdownMenuSeparator />
               <DropdownMenuItem className="cursor-pointer">
                 <User className="mr-2 h-4 w-4" />
-                <span>Profile</span>
+                <span>{t('menu.profile')}</span>
               </DropdownMenuItem>
+
               <DropdownMenuItem className="cursor-pointer">
                 <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
+                <span>{t('menu.settings')}</span>
               </DropdownMenuItem>
+
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-600">
-                <span onClick={handleLogout}>  Log out</span>
-              
+              <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-600" onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4 text-red-600" />
+                <span>{t('menu.logout')}</span>
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel className="font-normal">{t('menu.language')}</DropdownMenuLabel>
+              <DropdownMenuItem className="cursor-pointer" onClick={() => i18n.changeLanguage('en')}>
+                <span>{t('menu.english')}</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer" onClick={() => i18n.changeLanguage('np')}>
+                <span>{t('menu.nepali')}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
