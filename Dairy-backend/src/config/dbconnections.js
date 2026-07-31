@@ -20,11 +20,11 @@ const mongodbConnection = async () => {
     console.log('✅ MongoDB Connected Successfully to Local Database!');
     
     // Only seed once per application run
-    if (!seedingComplete) {
-      await createAdminFromEnv();
-      seedingComplete = true;
-      console.log('Initial seeding completed.');
-    }
+    // if (!seedingComplete) {
+    //   await createAdminFromEnv();
+    //   seedingComplete = true;
+    //   console.log('Initial seeding completed.');
+    // }
     
     return mongoose.connection;
   } catch (error) {

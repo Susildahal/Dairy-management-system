@@ -421,6 +421,7 @@ const Addmilk = () => {
 
       const milkQuantity = parseFloat(userEntry.todaymilk);
       const fitQuantity = parseFloat(userEntry.todayfit);
+      const moneyQuantity = calculateMoney(userEntry.todaymilk, userEntry.todayfit);
 
       if (milkQuantity <= 0) {
         toast.error(`Invalid milk quantity for ${userEntry.name}. Must be greater than 0`);
@@ -438,9 +439,10 @@ const Addmilk = () => {
         userid: userEntry.userId,
         name: userEntry.name,
         todaymilk: milkQuantity,
-        todaymoney: userEntry.todaymoney,
+        todaymoney: moneyQuantity,
+        totalmoney: moneyQuantity,
         todayfit: fitQuantity,
-        session: selectedFilter as 'morning' | 'night'
+        session: (userEntry.session || selectedFilter) as 'morning' | 'night'
       };
 
       let resultAction;
@@ -514,13 +516,15 @@ const Addmilk = () => {
         const originalIndex = values.entries.findIndex(e => e.userId === entry.userId);
 
         try {
+          const moneyQuantity = calculateMoney(entry.todaymilk, entry.todayfit);
           const entryData = {
             userid: entry.userId,
             name: entry.name,
             todaymilk: parseFloat(entry.todaymilk),
-            todaymoney: entry.todaymoney,
+            todaymoney: moneyQuantity,
+            totalmoney: moneyQuantity,
             todayfit: parseFloat(entry.todayfit),
-            session: selectedFilter as 'morning' | 'night'
+            session: (entry.session || selectedFilter) as 'morning' | 'night'
           };
 
           let resultAction;

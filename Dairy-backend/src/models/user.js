@@ -54,7 +54,15 @@ const userSchima =new mongoose.Schema({
     both :{
         type:Boolean,
         required:[true,'Both is required']
-    }  
+    },
+    resetPasswordToken: {
+        type: String,
+        default: null
+    },
+    resetPasswordExpires: {
+        type: Date,
+        default: null
+    }
 },{timestamps:true});
 
 const User = mongoose.model("User",userSchima);

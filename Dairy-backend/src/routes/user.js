@@ -1,4 +1,4 @@
-import {saveUser ,loginUser ,getUser ,getme  ,deleteUser ,logoutUser ,islogin  ,editUser ,getbyid ,updatestatus ,updateBothStatus, getUsers }  from "../controlllers/user.js"
+import {saveUser ,loginUser ,getUser ,getme  ,deleteUser ,logoutUser ,islogin  ,editUser ,getbyid ,updatestatus ,updateBothStatus, getUsers, forgotPassword, resetPassword }  from "../controlllers/user.js"
 import express from "express"
 const userrouter = express.Router();
 import {authenticateUser} from "../middleware/auth.js"
@@ -6,6 +6,8 @@ import {authenticateUser} from "../middleware/auth.js"
 
 userrouter.post("/register",authenticateUser, saveUser);
 userrouter.post("/login", loginUser);
+userrouter.post("/forgot-password", forgotPassword);
+userrouter.post("/reset-password", resetPassword);
 userrouter.get("/user-all",authenticateUser, getUser);
 userrouter.get("/", authenticateUser, getUsers);
 userrouter.get("/me", authenticateUser, getme);

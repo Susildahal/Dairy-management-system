@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "ip": "node get-ip.js",
+    "test:smtp": "node test-smtp-verify.js",
     "seed:superadmin": "node --input-type=module -e \"import('./src/scripts/createSuperAdmin.js').then((m) => m.default())\""
   },
   "keywords": [],

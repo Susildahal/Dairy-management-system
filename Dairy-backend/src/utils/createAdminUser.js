@@ -22,7 +22,8 @@ const createAdminFromEnv = async () => {
       password: await bcrypt.hash(process.env.ADMIN_PASSWORD || 'admin@123', 10),
       role: 'admin',
       tagnumber: process.env.ADMIN_TAGNUMBER || 'ADMIN001',
-      both: process.env.ADMIN_BOTH === 'true' || true // Default to true for admin
+      both: process.env.ADMIN_BOTH === 'true' || true, // Default to true for admin
+      maxUsers: process.env.ADMIN_MAX_USERS || 100
     };
     
     // Create admin user

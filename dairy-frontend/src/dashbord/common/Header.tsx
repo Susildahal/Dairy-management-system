@@ -19,7 +19,6 @@ import { getmee } from "../../store/slices/meeSlicer"
 import { RootState, AppDispatch } from "../../store/store"
 import { useAuth } from "@/hooks/useAuth"
 import axiosInstance from "@/utils/axiosInstance"
-import { Switch } from "@/components/ui/switch"
 import { useTranslation } from 'react-i18next'
 import i18n from '@/i18n'
 

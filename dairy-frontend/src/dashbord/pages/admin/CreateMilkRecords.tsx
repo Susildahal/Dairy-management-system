@@ -4,6 +4,7 @@ import { RootState, AppDispatch } from '../../../store/store'
 import { getdata } from '../../../store/slices/userSlicer'
 import { createMilkRecords } from '../../../store/slices/milkSlicer'
 import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
 import AdminHeader from '@/dashbord/common/AdminHeader'
 import Loading from '@/dashbord/ui/Loading'
 import { Label } from '@/components/ui/label'
@@ -13,7 +14,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { NepaliDatePicker } from 'nepali-datepicker-reactjs'
 import 'nepali-datepicker-reactjs/dist/index.css'
 import ND from 'nepali-date-converter'
-import { Calendar, Sun, Moon, Users, Milk, CheckCircle2, AlertCircle, Plus } from 'lucide-react'
+import { Moon, Users, Milk, CheckCircle2, AlertCircle, Plus } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select"
 
 
@@ -86,6 +87,7 @@ interface User {
 
 export default function CreateMilkRecords() {
   const dispatch = useDispatch<AppDispatch>()
+  const { t } = useTranslation()
   const { data: users, loading: usersLoading } = useSelector((s: RootState) => s.user)
 
   const [date, setDate] = useState<string>(getSafeDate())
@@ -124,11 +126,11 @@ export default function CreateMilkRecords() {
 
   const handleCreate = async () => {
     if (selectedIds.length === 0) {
-      toast.error('Please select at least one user')
+      toast.error(t('createMilkRecords.selectAtLeastOneUser'))
       return
     }
     if (!date) {
-      toast.error('Please select a date')
+      toast.error(t('createMilkRecords.selectDate'))
       return
     }
     setCreating(true)
@@ -139,10 +141,10 @@ export default function CreateMilkRecords() {
       if (createMilkRecords.fulfilled.match(action)) {
         const { created = [], skipped = [] } = action.payload as any
         setResult({ created: created.length, skipped })
-        toast.success(`${created.length} milk record(s) created successfully!`)
+        toast.success(t('createMilkRecords.createdSuccessfully', { count: created.length }))
         setSelectedIds([])
       } else {
-        const msg = (action.payload as string) || 'Failed to create records'
+        const msg = (action.payload as string) || t('createMilkRecords.failedCreate')
         toast.error(msg)
       }
     } finally {
@@ -157,9 +159,9 @@ export default function CreateMilkRecords() {
       <style dangerouslySetInnerHTML={{ __html: CALENDAR_CSS }} />
 
       <AdminHeader
-        title="Create Milk Records"
-        subtitle="Select date, session and users "
-        linkname="Add Milk Entry"
+        title={t('createMilkRecords.title')}
+        subtitle={t('createMilkRecords.subtitle')}
+        linkname={t('createMilkRecords.linkname')}
         linkto="/admin/milk"
       />
 
@@ -170,7 +172,7 @@ export default function CreateMilkRecords() {
           <div className="flex flex-col  gap-3">
            
             <Label className="text-xs font-bold text-gray-500  uppercase tracking-wider shrink-0">
-              Date
+              {t('createMilkRecords.date')}
             </Label>
             <div className="relative w-44">
               {/* <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none z-10">
@@ -188,33 +190,29 @@ export default function CreateMilkRecords() {
           {/* Session */}
           <div className="flex  flex-col  gap-3">
             <Label className="text-xs font-bold text-gray-500 uppercase tracking-wider shrink-0">
-              Session
+              {t('createMilkRecords.session')}
             </Label>
             <Select value={session} onValueChange={v => setSession(v as Session)}>
               <SelectTrigger className="w-36 h-9">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="morning">☀️ Morning</SelectItem>
-                <SelectItem value="night">🌙 Night</SelectItem>
+                <SelectItem value="morning">☀️ {t('createMilkRecords.morning')}</SelectItem>
+                <SelectItem value="night">🌙 {t('createMilkRecords.night')}</SelectItem>
               </SelectContent>  
             </Select>
           </div>
 
           {/* Summary badges */}
           <div className="ml-auto md:flex hidden  items-center gap-3">
-            {session === 'night' && (
-              <Badge variant="outline" className="text-amber-600 border-amber-200 bg-amber-50 text-xs">
-                <Moon className="w-3 h-3 mr-1" /> Night: only "both" users shown
-              </Badge>
-            )}
+       
             <Badge variant="outline" className="text-blue-600 border-blue-200 bg-blue-50 text-xs">
               <Users className="w-3 h-3 mr-1" />
-              {eligibleUsers.length} eligible users
+              {t('createMilkRecords.eligibleUsers', { count: eligibleUsers.length })}
             </Badge>
             {selectedIds.length > 0 && (
               <Badge className="bg-blue-600 text-white text-xs">
-                {selectedIds.length} selected
+                {t('createMilkRecords.selected', { count: selectedIds.length })}
               </Badge>
             )}
           </div>
@@ -227,12 +225,12 @@ export default function CreateMilkRecords() {
           <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 shrink-0" />
           <div className="flex-1">
             <p className="font-bold text-green-700 dark:text-green-400">
-              {result.created} record(s) created
+              {t('createMilkRecords.recordsCreated', { count: result.created })}
             </p>
             {result.skipped.length > 0 && (
               <div className="mt-2 space-y-1">
                 <p className="text-xs font-semibold text-amber-600 flex items-center gap-1">
-                  <AlertCircle className="w-3 h-3" /> {result.skipped.length} skipped:
+                  <AlertCircle className="w-3 h-3" /> {t('createMilkRecords.skipped', { count: result.skipped.length })}
                 </p>
                 {result.skipped.map((s: any, i: number) => (
                   <p key={i} className="text-xs text-gray-500 pl-4">
@@ -258,7 +256,7 @@ export default function CreateMilkRecords() {
               className="mr-2"
             />
             <Label htmlFor="select-all" className="text-sm font-semibold text-gray-700 dark:text-gray-300 cursor-pointer">
-              Select All
+              {t('createMilkRecords.selectAll')}
             </Label>
           </div>
           {/* <Button
@@ -279,13 +277,13 @@ export default function CreateMilkRecords() {
             <Milk className="w-10 h-10" />
             <p className="font-semibold">
               {session === 'night'
-                ? 'No users enrolled for night collection'
-                : 'No active users found'}
+                ? t('createMilkRecords.noNightUsers')
+                : t('createMilkRecords.noActiveUsers')}
             </p>
             <p className="text-sm">
               {session === 'night'
-                ? 'Enable "Night Collection" on user profiles to show them here.'
-                : 'Add users in the Users section first.'}
+                ? t('createMilkRecords.noNightUsersHint')
+                : t('createMilkRecords.noActiveUsersHint')}
             </p>
           </div>
         ) : (
@@ -319,7 +317,7 @@ export default function CreateMilkRecords() {
                   {/* Name + phone */}
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-slate-800 dark:text-slate-100 truncate">{user.name}</p>
-                    <p className="text-xs text-slate-400">{(user as any).phone || 'No phone'}</p>
+                    <p className="text-xs text-slate-400">{(user as any).phone || t('createMilkRecords.noPhone')}</p>
                   </div>
 
                   {/* Tag */}
@@ -332,7 +330,7 @@ export default function CreateMilkRecords() {
                   {/* Night badge */}
                   {user.both && (
                     <Badge variant="secondary" className="text-[10px] bg-indigo-50 text-indigo-600 border-indigo-200 hidden md:flex">
-                      <Moon className="w-2.5 h-2.5 mr-1" /> Night
+                      <Moon className="w-2.5 h-2.5 mr-1" /> {t('createMilkRecords.night')}
                     </Badge>
                   )}
 
@@ -348,7 +346,7 @@ export default function CreateMilkRecords() {
         {eligibleUsers.length > 0 && (
           <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800">
             <span className="text-xs text-gray-500">
-              {selectedIds.length} of {eligibleUsers.length} selected
+              {t('createMilkRecords.selectedOf', { selected: selectedIds.length, total: eligibleUsers.length })}
             </span>
             <Button
               onClick={handleCreate}
@@ -356,9 +354,9 @@ export default function CreateMilkRecords() {
               className="h-9 bg-blue-600 hover:bg-blue-700 text-white font-bold px-5"
             >
               {creating ? (
-                <><div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white mr-2" /> Creating...</>
+                <><div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white mr-2" /> {t('createMilkRecords.creating')}</>
               ) : (
-                <><Plus className="w-4 h-4 mr-2" /> Create {selectedIds.length || ''} Records</>
+                <><Plus className="w-4 h-4 mr-2" /> {t('createMilkRecords.createRecords', { count: selectedIds.length })}</>
               )}
             </Button>
           </div>

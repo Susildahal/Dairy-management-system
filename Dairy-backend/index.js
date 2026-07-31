@@ -22,8 +22,7 @@ import monthRouter from "./src/routes/month.js";
 import userRouter from "./src/routes/user.js";
 import milkrouter from "./src/routes/milk.js";
 import settingrouter from "./src/routes/sitesetting.js"
-import { verifySmtpConnection} from "./src/config/nodemiller.js"
- 
+
 //middleware
 const app = express();
 app.use(express.json());
@@ -32,7 +31,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // CORS Configuration - supports multiple origins
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:5173','https://sadabahardairy.vercel.app', 'https://dairyadmin.vercel.app' ,"https://dairyadmin.vercel.app" ,];
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:5173', 'https://sadabahardairy.vercel.app', 'https://dairyadmin.vercel.app', "https://dairyadmin.vercel.app",];
 
 const corsOptions = {
     origin: function (origin, callback) {
@@ -93,17 +92,12 @@ setInterval(() => {
     fetchPublicIp();
 }, 10 * 60 * 1000); // Call every 10 minutes
 
-// Start server
-verifySmtpConnection()
+// Connect to MongoDB and start server
 mongodbConnection()
     .then(() => {
         app.listen(port, "0.0.0.0", () => {
             console.log(`Server is running on port ${port}`);
             // verifySmtpConnection();
-
-            if (process.env.SMTP_TEST_EMAIL === "true") {
-                sendTestEmail();
-            }
         });
     })
     .catch((error) => {
