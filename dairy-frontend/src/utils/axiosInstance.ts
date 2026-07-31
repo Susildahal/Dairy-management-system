@@ -2,10 +2,12 @@ import axios from 'axios';
 
 // src/utils/axiosInstance.ts
 
+const nodemode = 'production';
+
 const axiosInstance = axios.create({
   // baseURL: import.meta.env.VITE_API_BASE_URL || 'https://dairyadmin.vercel.app/api/',
     // baseURL: import.meta.env.VITE_API_BASE_URL || 'https://multi-vendor-o8bb.onrender.com/api/',
-    baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/',
+    baseURL: nodemode ==='development' ? 'http://localhost:5000/api/' : 'https://multi-vendor-o8bb.onrender.com/api/ ',
 
   withCredentials: true, // send & receive cookies
   headers: {
