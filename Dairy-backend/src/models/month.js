@@ -8,18 +8,15 @@ const monthSchema = new mongoose.Schema({
     month: {
         type: String,
         required: [true, 'Month name is required'],
-          
-        },
+
+    },
     status: {
         type: Boolean,
         default: false
     }
 }, { timestamps: true });
-
-// Create unique index for year + month combination to prevent duplicates
 monthSchema.index({ year: 1, month: 1 }, { unique: true });
 
-// Pre-save middleware to generate fullMonthName
 
 const Month = mongoose.model("Month", monthSchema);
 

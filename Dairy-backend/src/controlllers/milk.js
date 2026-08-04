@@ -1,133 +1,9 @@
 
 import Milk from "../models/milk.js";
 import { StatusCodes } from "http-status-codes";
-import Month from "../models/month.js";
 import mongoose from "mongoose";
-import { BadRequestError, NotFoundError } from "../middleware/errorHandler.js";
 import User from "../models/user.js";
 
-
-
-
-export const savemilk = async (req, resp, next) => {
-    try {
-        const { userid, name, todaymilk, todaymoney, todayfit , session } = req.body;
-
-        // Validate required fields
-        if (!userid || !name || todaymilk === undefined || todaymoney === undefined || todayfit === undefined || !session) {
-            return resp.status(400).json({
-                success: false,
-                message: "Missing required fields: userid, name, todaymilk, todaymoney, todayfit, session"
-            });
-        }
-
-        // Find user by userid or _id
-        let user = await User.findOne({ userid: userid });
-        if (!user && mongoose.Types.ObjectId.isValid(userid)) {
-            user = await User.findById(userid);
-        }
-
-        if (!user) {
-            return resp.status(404).json({
-                success: false,
-                message: "User not found"
-            });
-        }
-
-        console.log('Found user:', user);
-
-        // Parse numeric values
-        const milkAmount = parseFloat(todaymilk) || 0;
-        const moneyAmount = parseFloat(todaymoney) || 0;
-        const fitAmount = parseFloat(todayfit) || 0;
-
-        // Validate numeric values
-        if (milkAmount < 0 || moneyAmount < 0 || fitAmount < 0) {
-            return resp.status(400).json({
-                success: false,
-                message: "Milk, money, and fit values must be non-negative numbers"
-            });
-        }
-
-        // Update user's last entry information
-        const lastUpdatePayload = {
-            lastUpdateAt: new Date(),
-            lastUpdateDisplay: new Date().toLocaleString(),
-            lastEntry: {
-                name,
-                todaymilk: milkAmount,
-                todaymoney: moneyAmount,
-                todayfit: fitAmount,
-                session: session
-            }
-        };
-
-        // Update user by userid field first, fallback to _id
-        let updatedUser = await User.findOneAndUpdate(
-            { userid: userid },
-            { $set: lastUpdatePayload },
-            { new: true }
-        );
-
-        if (!updatedUser && mongoose.Types.ObjectId.isValid(userid)) {
-            updatedUser = await User.findByIdAndUpdate(
-                userid,
-                { $set: lastUpdatePayload },
-                { new: true }
-            );
-        }
-
-        if (!updatedUser) {
-            return resp.status(400).json({
-                success: false,
-                message: "Failed to update user's last-entry data"
-            });
-        }
-
-        // Find active month
-        const activeMonth = await Month.findOne({ status: true });
-        if (!activeMonth) {
-            return resp.status(400).json({
-                success: false,
-                message: "No active month available"
-            });
-        }
-
-        const monthid = activeMonth._id;
-
-    
-            const newMilk = new Milk({
-                userid,
-                name,
-                todaymilk: milkAmount,
-                todaymoney: moneyAmount,
-                todayfit: fitAmount,
-                monthid: monthid,
-                session: session
-            });
-            await newMilk.save();
-        
-
-        // Return success response
-        return resp.status(200).json({
-            success: true,
-            message: "Milk data saved successfully",
-            data: {
-                userid,
-                name,
-                todaymilk: milkAmount,
-                todaymoney: moneyAmount,
-                todayfit: fitAmount,
-                monthid,
-                session
-            }
-        });
-
-    } catch (error) {
-        console.error("Error saving milk data:", error);
-        next(error);
-    }
-}
 export const updatemilk = async (req, resp, next) => {
     const { id } = req.params;
     const { userid, name, todaymilk, todaymoney, todayfit, session } = req.body;
@@ -250,13 +126,13 @@ export const allmilk = async (req, resp) => {
         } else if (startDate || endDate) {
             // Range filter — works even if only one end is provided
             const start = normalise(startDate);
-            const end   = normalise(endDate);
+            const end = normalise(endDate);
             if (start && end && start === end) {
                 filter.date = start;               // exact day — no $gte/$lte needed
             } else {
                 filter.date = {};
                 if (start) filter.date.$gte = start;
-                if (end)   filter.date.$lte = end;
+                if (end) filter.date.$lte = end;
             }
         }
         // ─────────────────────────────────────────────────────────────────

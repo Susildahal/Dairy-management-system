@@ -13,8 +13,6 @@ import {
   Building,
   ChevronDown,
   ArrowRight,
-  Sun,
-  Moon,
 } from "lucide-react"
 
 export default function UserHome() {
@@ -122,55 +120,115 @@ export default function UserHome() {
             </div>
           </div>
 
-          {/* Clean Sample Register Table */}
-          <div className="max-w-4xl mx-auto rounded-xl border border-slate-200 bg-slate-50 p-4 sm:p-6 shadow-sm">
-            <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-200">
-              <div className="flex items-center gap-2">
-                <Milk className="w-4 h-4 text-emerald-600" />
-                <span className="font-bold text-sm text-slate-800">{t("home.liveStatsTitle")}</span>
-              </div>
-              <span className="text-xs text-slate-500 font-medium">Shift: Morning Collection</span>
-            </div>
+          {/* Feature Highlight Banner */}
+          <div className="max-w-4xl mx-auto">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+              {[
+                {
+                  icon: <Droplets className="w-5 h-5" />,
+                  color: "emerald",
+                  label: "Smart Collection",
+                  desc: "Morning & Evening shifts tracked in real-time",
+                },
+                {
+                  icon: <Users className="w-5 h-5" />,
+                  color: "sky",
+                  label: "Farmer Registry",
+                  desc: "Manage all farmers with unique tag IDs",
+                },
+                {
+                  icon: <FileText className="w-5 h-5" />,
+                  color: "violet",
+                  label: "Auto Billing",
+                  desc: "FAT/SNF based payments calculated instantly",
+                },
+                {
+                  icon: <ShieldCheck className="w-5 h-5" />,
+                  color: "amber",
+                  label: "Secure & Reliable",
+                  desc: "Role-based access for Admin, Supervisor & Farmers",
+                },
+              ].map((item, i) => (
+                <div
+                  key={i}
+                  style={{
+                    animationDelay: `${i * 100}ms`,
+                    animationFillMode: "both",
+                  }}
+                  className={`
+                    group relative flex flex-col gap-3 p-4 sm:p-5 rounded-2xl bg-white
+                    border border-slate-200 shadow-sm overflow-hidden
+                    transition-all duration-300 ease-out
+                    hover:-translate-y-1 hover:shadow-lg
+                    ${item.color === "emerald"
+                      ? "hover:border-emerald-300"
+                      : item.color === "sky"
+                        ? "hover:border-sky-300"
+                        : item.color === "violet"
+                          ? "hover:border-violet-300"
+                          : "hover:border-amber-300"
+                    }
+                  `}
+                >
+                  {/* Glow effect on hover */}
+                  <div
+                    className={`
+                      absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none
+                      ${item.color === "emerald"
+                        ? "bg-gradient-to-br from-emerald-50/60 to-transparent"
+                        : item.color === "sky"
+                          ? "bg-gradient-to-br from-sky-50/60 to-transparent"
+                          : item.color === "violet"
+                            ? "bg-gradient-to-br from-violet-50/60 to-transparent"
+                            : "bg-gradient-to-br from-amber-50/60 to-transparent"
+                      }
+                    `}
+                  />
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs sm:text-sm">
-                <thead>
-                  <tr className="border-b border-slate-200 text-slate-500 font-semibold bg-white">
-                    <th className="p-2.5">Tag #</th>
-                    <th className="p-2.5">Farmer Name</th>
-                    <th className="p-2.5">Shift</th>
-                    <th className="p-2.5">Milk (Liters)</th>
-                    <th className="p-2.5">FAT / SNF</th>
-                    <th className="p-2.5 text-right">Amount</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200 text-slate-700 bg-white">
-                  <tr>
-                    <td className="p-2.5 font-semibold text-emerald-700">TAG-101</td>
-                    <td className="p-2.5">Ramesh Sharma</td>
-                    <td className="p-2.5">
-                      <span className="inline-flex items-center gap-1 text-xs text-amber-700 bg-amber-50 px-2 py-0.5 rounded font-medium">
-                        <Sun className="w-3 h-3" /> Morning
-                      </span>
-                    </td>
-                    <td className="p-2.5 font-medium">14.5 L</td>
-                    <td className="p-2.5">4.8% / 8.5%</td>
-                    <td className="p-2.5 text-right font-bold text-slate-900">रू 1,160.00</td>
-                  </tr>
-                  <tr>
-                    <td className="p-2.5 font-semibold text-emerald-700">TAG-102</td>
-                    <td className="p-2.5">Sita Adhikari</td>
-                    <td className="p-2.5">
-                      <span className="inline-flex items-center gap-1 text-xs text-slate-700 bg-slate-100 px-2 py-0.5 rounded font-medium">
-                        <Moon className="w-3 h-3" /> Evening
-                      </span>
-                    </td>
-                    <td className="p-2.5 font-medium">18.0 L</td>
-                    <td className="p-2.5">5.0% / 8.6%</td>
-                    <td className="p-2.5 text-right font-bold text-slate-900">रू 1,476.00</td>
-                  </tr>
-                </tbody>
-              </table>
+                  {/* Icon */}
+                  <div
+                    className={`
+                      w-10 h-10 rounded-xl flex items-center justify-center shrink-0
+                      ${item.color === "emerald"
+                        ? "bg-emerald-100 text-emerald-600"
+                        : item.color === "sky"
+                          ? "bg-sky-100 text-sky-600"
+                          : item.color === "violet"
+                            ? "bg-violet-100 text-violet-600"
+                            : "bg-amber-100 text-amber-600"
+                      }
+                    `}
+                  >
+                    {item.icon}
+                  </div>
+
+                  {/* Text */}
+                  <div className="relative">
+                    <p className="text-xs sm:text-sm font-bold text-slate-900 mb-1 leading-snug">
+                      {item.label}
+                    </p>
+                    <p className="text-[11px] sm:text-xs text-slate-500 leading-relaxed">
+                      {item.desc}
+                    </p>
+                  </div>
+
+                  {/* Bottom accent line */}
+                  <div
+                    className={`
+                      absolute bottom-0 left-0 right-0 h-0.5 scale-x-0 group-hover:scale-x-100
+                      transition-transform duration-300 origin-left
+                      ${item.color === "emerald"
+                        ? "bg-emerald-400"
+                        : item.color === "sky"
+                          ? "bg-sky-400"
+                          : item.color === "violet"
+                            ? "bg-violet-400"
+                            : "bg-amber-400"
+                      }
+                    `}
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </div>

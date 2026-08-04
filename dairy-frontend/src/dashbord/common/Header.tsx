@@ -194,19 +194,6 @@ export function Header({ email, phone }: HeaderProps) {
                   <p className="text-xs leading-none text-muted-foreground truncate">{t('header.phone')}: {user?.phone || t('header.adminPhone')}</p>
                 </div>
               </DropdownMenuLabel>
-
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer">
-                <User className="mr-2 h-4 w-4" />
-                <span>{t('menu.profile')}</span>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem className="cursor-pointer">
-                <Settings className="mr-2 h-4 w-4" />
-                <span>{t('menu.settings')}</span>
-              </DropdownMenuItem>
-
-              <DropdownMenuSeparator />
               <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-600" onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4 text-red-600" />
                 <span>{t('menu.logout')}</span>

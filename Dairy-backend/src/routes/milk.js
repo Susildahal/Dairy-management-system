@@ -1,4 +1,4 @@
-import { savemilk, allmilk, updatemilk, delatemilk } from "../controlllers/milk.js";
+import { allmilk, updatemilk, delatemilk } from "../controlllers/milk.js";
 import { createMilkRecords } from "../controlllers/milkCreate.js";
 import express from "express";
 
@@ -9,7 +9,6 @@ import { authenticateUser } from "../middleware/auth.js";
 milkrouter.post("/create-records", authenticateUser, createMilkRecords);
 
 // Save / update / read / delete
-milkrouter.post("/savemilk", authenticateUser, savemilk);
 milkrouter.put("/updatemilk/:id", authenticateUser, updatemilk);
 milkrouter.get("/allmilk", authenticateUser, allmilk);
 milkrouter.delete("/:id", authenticateUser, delatemilk);
