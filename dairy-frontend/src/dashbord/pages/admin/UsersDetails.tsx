@@ -37,15 +37,16 @@ const UsersDetails = () => {
   const { user: currentUser } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const typedCurrentUser = currentUser as { role?: string; _id?: string } | null;
   
   // Filter users based on role
   // If Admin: only show their own created users (already filtered by backend, but safe to do here too)
   // If SuperAdmin: they probably will use the specialized SuperAdmin routes, 
   // but if they visit this page, they see all users in the state.
   const filteredData = data.filter((u: any) => {
-    if (currentUser?.role === 'admin') {
+    if (typedCurrentUser?.role === 'admin') {
       // Only show users belonging to this admin
-      return u.adminId === currentUser._id && u.role === 'user';
+      return u.adminId === typedCurrentUser._id && u.role === 'user';
     }
     return true; // SuperAdmin sees all
   });
@@ -80,7 +81,6 @@ const UsersDetails = () => {
     
     try {
       await dispatch(deleteuser(deleteDialog.userId)).unwrap();
-      toast.success(t('usersManagement.updatedSuccessfully'));
       setDeleteDialog({ isOpen: false, userId: null, userName: '' });
     } catch (error) {
       console.error('Error deleting user:', error);

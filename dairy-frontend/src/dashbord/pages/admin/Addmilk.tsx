@@ -336,11 +336,11 @@ const Addmilk = () => {
   const [selectedDate, setSelectedDate] = useState<string>(getSafeDate())
   const [submittingUser, setSubmittingUser] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (!users || users.length === 0) {
-      dispatch(getdata())
-    }
-  }, [dispatch, users])
+  // useEffect(() => {
+  //   if (!users || users.length === 0) {
+  //     dispatch(getdata())
+  //   }
+  // }, [dispatch, users])
 
   useEffect(() => {
     // Only fetch settings if not already loaded
@@ -354,14 +354,14 @@ const Addmilk = () => {
   const rate = settingData?.rate_of_user || 0;
   const superadminrate = settingData?.rate_of_admin || 0;
 
-  useEffect(() => {
-    // Only fetch users if data is stale or doesn't exist
-    const isDataStale = !lastFetched || Date.now() - (lastFetched || 0) > 5 * 60 * 1000;
+  // useEffect(() => {
+  //   // Only fetch users if data is stale or doesn't exist
+  //   const isDataStale = !lastFetched || Date.now() - (lastFetched || 0) > 5 * 60 * 1000;
 
-    if (((users && users.length) === 0 || isDataStale) && !usersLoading) {
-      dispatch(getdata())
-    }
-  }, [dispatch, users && users.length, usersLoading, lastFetched])
+  //   if (( isDataStale) && !usersLoading) {
+  //     dispatch(getdata())
+  //   }
+  // }, [dispatch, users && users.length, usersLoading, lastFetched])
 
   // Fetch milk entries whenever date or session changes — default is today
   useEffect(() => {
