@@ -3,6 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import mongoose from "mongoose";
 import User from "../models/user.js";
 import transporter from "../config/nodemiller.js"
+
 export const updatemilk = async (req, resp, next) => {
     const { id } = req.params;
     const { userid, name, todaymilk, todaymoney, todayfit, session } = req.body;
@@ -24,13 +25,7 @@ export const updatemilk = async (req, resp, next) => {
                 message: "Milk data not found"
             });
         }
-       // block if permission is false 
-       if (existingMilk.permission === false) {
-            return resp.status(400).json({
-                success: false,
-                message: "Ask user for permission to update this record"
-            });
-        }
+
         // Parse numeric values
         const milkAmount = parseFloat(todaymilk) || 0;
         const moneyAmount = parseFloat(todaymoney) || 0;
@@ -66,7 +61,6 @@ export const updatemilk = async (req, resp, next) => {
                 todaymoney: moneyAmount,
                 todayfit: fitAmount,
                 session: session,
-                permission:false
             }
         };
 
@@ -91,9 +85,21 @@ export const updatemilk = async (req, resp, next) => {
         existingMilk.todaymoney = moneyAmount;
         existingMilk.todayfit = fitAmount;
         existingMilk.session = session;
-        existingMilk.permission=false;
         // Keep the same monthid
         await existingMilk.save();
+        if (user.email) {
+            try {
+                await transporter.sendMail({
+                    from: process.env.SMTP_USER || process.env.SMTP_FROM_EMAIL || "no-reply@dairyapp.com",
+                    to: user.email,
+                    subject: "Milk Update Notification",
+                    text: `Your milk record has been updated successfully.\n\nDate: ${existingMilk.date || "N/A"}\nName: ${name}\nMilk: ${milkAmount} liters\nMoney: ${moneyAmount}\nFit: ${fitAmount}%\nSession: ${session}`
+                });
+                console.log(`Milk update notification sent to ${user.email}`);
+            } catch (mailError) {
+                console.error("Error sending milk update notification:", mailError);
+            }
+        }
 
         return resp.status(200).json({
             success: true,

@@ -119,7 +119,7 @@ const MilkManagement: React.FC = () => {
     todayfit: 0,
     todaymoney: 0,
     session: 'morning',
-    permission: false
+    permission: true
   })
   const [updateLoading, setUpdateLoading] = useState(false)
 
