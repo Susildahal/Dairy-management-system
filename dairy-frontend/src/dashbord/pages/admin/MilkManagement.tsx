@@ -25,6 +25,7 @@ import { toast } from 'sonner'
 import ND from "nepali-date-converter";
 import MilkManagementHeader from './components/MilkManagementHeader'
 import { useTranslation } from 'react-i18next'
+import axiosInstance from '@/utils/axiosInstance'
 
 interface FilterParams {
   userid?: string
@@ -48,6 +49,7 @@ interface MilkEntry {
   updatedAt: string
   date:string
   rate:number
+  permission:boolean
 }
 
 interface UpdateMilkEntryData {
@@ -57,6 +59,7 @@ interface UpdateMilkEntryData {
   todayfit: number
   todaymoney: number
   session: 'morning' | 'night'
+  permission: boolean
 }
 
 const MilkManagement: React.FC = () => {
@@ -115,7 +118,8 @@ const MilkManagement: React.FC = () => {
     todaymilk: 0,
     todayfit: 0,
     todaymoney: 0,
-    session: 'morning'
+    session: 'morning',
+    permission: false
   })
   const [updateLoading, setUpdateLoading] = useState(false)
 
@@ -194,7 +198,9 @@ const MilkManagement: React.FC = () => {
       todaymilk: initialMilk,
       todayfit: initialFat,
       todaymoney: initialMoney,
-      session: entry.session
+      session: entry.session,
+      permission: entry.permission
+
     })
     setUpdateModalOpen(true)
   }
@@ -292,13 +298,7 @@ const MilkManagement: React.FC = () => {
     )
   }
 
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-red-600">{t('milkManagement.errorPrefix')}: {error}</div>
-      </div>
-    )
-  }
+
 
   const handleDelete = async (id: string) => {
     try {
@@ -437,20 +437,44 @@ const nepalimonth =[
                       <TableCell className="py-1.5 sm:py-2.5 text-green-600 font-semibold whitespace-nowrap">
                         Rs.{formatNepaliNumber(entry.todaymoney || 0)}
                       </TableCell>
-                      <TableCell className="py-1.5 sm:py-2.5">
-                        <div>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="h-6 w-6 sm:h-8 sm:w-8 p-0 text-blue-600"
-                          onClick={() => handleOpenUpdateModal(entry)}
-                        >
-                          <Pencil className="h-3 w-3 sm:h-4 sm:w-4" />
-                        </Button>
+                      <TableCell className="">
+                        <div className="flex ">
+                        {
+                          entry.permission === true ? (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 sm:h-8 sm:w-8 p-0 text-blue-600"
+                              onClick={() => handleOpenUpdateModal(entry)}
+                            >
+                              <Pencil className="h-3 w-3 sm:h-4 sm:w-4" />
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="  text-blue-600"
+                              onClick={async () => {
+                                try {
+                                  await axiosInstance.post(`/milk/send-permission-email/${entry._id}`)
+                                  toast.success('Permission request sent')
+                                } catch (err) {
+                                  console.error('Error sending permission request', err)
+                                  toast.error('Failed to send permission request')
+                                }
+                              }}
+                            >
+                               Ask permission
+                            </Button>
+                          )
+                        }
+
+                       
+                  
                           <Button 
                           variant="ghost" 
                           size="sm" 
-                          className="h-6 w-6 sm:h-8 sm:w-8 p-0 text-red-600"
+                          className="h-6 w-6 sm:h-8 sm:w-8  text-red-600"
                           onClick={() => openDeleteModal(entry._id)}
                         >
                           <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />

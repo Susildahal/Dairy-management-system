@@ -1,9 +1,8 @@
-
 import Milk from "../models/milk.js";
 import { StatusCodes } from "http-status-codes";
 import mongoose from "mongoose";
 import User from "../models/user.js";
-
+import transporter from "../config/nodemiller.js"
 export const updatemilk = async (req, resp, next) => {
     const { id } = req.params;
     const { userid, name, todaymilk, todaymoney, todayfit, session } = req.body;
@@ -25,7 +24,13 @@ export const updatemilk = async (req, resp, next) => {
                 message: "Milk data not found"
             });
         }
-
+       // block if permission is false 
+       if (existingMilk.permission === false) {
+            return resp.status(400).json({
+                success: false,
+                message: "Ask user for permission to update this record"
+            });
+        }
         // Parse numeric values
         const milkAmount = parseFloat(todaymilk) || 0;
         const moneyAmount = parseFloat(todaymoney) || 0;
@@ -60,7 +65,8 @@ export const updatemilk = async (req, resp, next) => {
                 todaymilk: milkAmount,
                 todaymoney: moneyAmount,
                 todayfit: fitAmount,
-                session: session
+                session: session,
+                permission:false
             }
         };
 
@@ -85,6 +91,7 @@ export const updatemilk = async (req, resp, next) => {
         existingMilk.todaymoney = moneyAmount;
         existingMilk.todayfit = fitAmount;
         existingMilk.session = session;
+        existingMilk.permission=false;
         // Keep the same monthid
         await existingMilk.save();
 
@@ -220,6 +227,44 @@ export const delatemilk = async (req, resp) => {
         resp.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: "Server error"
+        });
+    }
+}
+
+
+ export const requestpermission = async (req, resp) => {
+    const {id} = req.params;
+
+    const milkEntry = await Milk.findById(id);
+    if (!milkEntry) {
+        return resp.status(404).json({
+            success: false,
+            message: "Milk entry not found"
+        });
+    }
+
+     const finduseremail = await User.findById(milkEntry.userid);
+     console.log( "users",finduseremail);
+     console.log( "milkEntry",milkEntry);
+     console.log( "finduseremail",finduseremail.email);
+     console.log( "EMAIL_USER from dot env",process.env.SMTP_USER);
+    // Send permission request email
+    try {
+        await transporter.sendMail({
+            from: process.env.SMTP_USER,
+            to: finduseremail.email,
+            subject: "Permission Request for Milk Data",
+            text: `You have requested permission to update milk data for ${milkEntry.date}. with the milk of ${milkEntry.todaymilk} liters and the fit of ${milkEntry.todayfit}%. Please confirm your request.`
+        });
+        resp.status(200).json({
+            success: true,
+            message: "Permission request sent successfully"
+        });
+    } catch (error) {
+        console.error("Error sending permission request:", error);
+        resp.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: "Failed to send permission request"
         });
     }
 }

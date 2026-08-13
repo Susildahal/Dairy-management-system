@@ -13,10 +13,12 @@ const dailyMilkSchema = new mongoose.Schema({
         type: Number, 
         required: [true, "today milk is required"]
     },
+
     todayfit: {
         type: Number,  
         required: [true, "today fit is required"]
     },
+
     todaymoney: {
         type: Number,
         required: [true, "today money is required"]
@@ -34,9 +36,11 @@ const dailyMilkSchema = new mongoose.Schema({
     date:{
         type:String,
         required:[true,"Date is required"]
+    },
+  permission:  {
+    type:Boolean,
+    default:true
     }
-
-
 }, { timestamps: false })
 
 const Milk = mongoose.model("Milk", dailyMilkSchema);
