@@ -5,6 +5,8 @@ import jwt from "jsonwebtoken"
 import bcrypt from "bcryptjs";
 import transporter from "../config/nodemiller.js";
 import Milk from "../models/milk.js";
+import {TwoFactorAuth} from "../models/2faTemp.js"
+import crypto from "crypto";
 
 export const saveUser = async (req, res, next) => {
   try {
@@ -82,51 +84,124 @@ export const saveUser = async (req, res, next) => {
   }
 };
 
+
 export const loginUser = async (req, res, next) => {
   try {
     const { email, phone, password } = req.body;
 
     if (!password || (!email && !phone)) {
-      throw new BadRequestError("Please provide email or phone and password");
+      throw new BadRequestError(
+        "Please provide email or phone and password"
+      );
     }
 
+    // Find user
     const user = await User.findOne(email ? { email } : { phone });
+
     if (!user) {
       throw new NotFoundError("User not found");
     }
 
+    // Check password
     const isMatch = await bcrypt.compare(password, user.password);
+
     if (!isMatch) {
       throw new BadRequestError("Invalid credentials");
     }
 
+    // Check admin roles
+    const requires2FA =
+      user.role === "superadmin" || user.role === "admin";
+
+    // ==========================================
+    // ADMIN / SUPERADMIN LOGIN WITH 2FA
+    // ==========================================
+    if (requires2FA) {
+      // Generate random 2FA token
+      const twoFactorToken = crypto.randomBytes(32).toString("hex");
+
+      // Expire after 15 minutes
+      const expDate = new Date(Date.now() + 15 * 60 * 1000);
+
+      // Remove old 2FA requests for this user
+      await TwoFactorAuth.deleteMany({
+        userID: user._id,
+      });
+
+      // Save new 2FA request
+      await TwoFactorAuth.create({
+        userID: user._id,
+        token: twoFactorToken,
+        expDate,
+      });
+
+      // Login URL
+      const loginUrl = `${process.env.FRONTENDURL}/admin/login/${twoFactorToken}`;
+
+      // Send email
+      await transporter.sendMail({
+        from: process.env.SMTP_USER,
+        to: user.email,
+        subject: "Login to Dashboard",
+        text: `Click the following link to continue login: ${loginUrl}`,
+        html: `
+          <h2>Dashboard Login</h2>
+          <p>You requested to login to the dashboard.</p>
+          <p>
+            <a href="${loginUrl}">
+              Click here to continue login
+            </a>
+          </p>
+          <p>This link will expire in 15 minutes.</p>
+        `,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Check your email to complete login",
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          role: user.role,
+        },
+      });
+    }
+
+    // ==========================================
+    // NORMAL USER LOGIN
+    // ==========================================
+
     const token = jwt.sign(
-      { userId: user._id, role: user.role },
+      {
+        userId: user._id,
+        role: user.role,
+      },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      {
+        expiresIn: "7d",
+      }
     );
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true,        // REQUIRED for SameSite=None
-      sameSite: true,    // REQUIRED for cross-domain
-      maxAge: 7 * 24 * 60 * 60 * 1000
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      message: "login successfully",
-      auth_token: token,
+      message: "Login successfully",
       user: {
         _id: user._id,
         name: user.name,
         email: user.email,
         phone: user.phone,
-        role: user.role
+        role: user.role,
       },
-      data: user
     });
-
   } catch (err) {
     next(err);
   }
@@ -460,6 +535,104 @@ export const resetPassword = async (req, res, next) => {
     res.status(StatusCodes.OK).json({
       success: true,
       message: "Password has been reset successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const loginForadmin = async (req, res, next) => {
+  try {
+    const { token } = req.params;
+
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide login token",
+      });
+    }
+
+    // Find 2FA request
+    const existing2fa = await TwoFactorAuth.findOne({
+      token,
+    });
+
+    if (!existing2fa) {
+      return res.status(404).json({
+        success: false,
+        message: "Invalid login request or token",
+      });
+    }
+
+    // Check expiration
+    if (existing2fa.expDate <= new Date()) {
+      // Delete expired token
+      await TwoFactorAuth.deleteOne({
+        _id: existing2fa._id,
+      });
+
+      return res.status(401).json({
+        success: false,
+        message: "Login token has expired",
+      });
+    }
+
+    // Find user
+    const existingUser = await User.findById(existing2fa.userID);
+
+    if (!existingUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User does not exist",
+      });
+    }
+
+    // Make sure user is admin
+    if (
+      existingUser.role !== "admin" &&
+      existingUser.role !== "superadmin"
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "User is not authorized",
+      });
+    }
+
+    // Create JWT
+    const jwtToken = jwt.sign(
+      {
+        userId: existingUser._id,
+        role: existingUser.role,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
+
+    // Delete 2FA token so it cannot be reused
+    await TwoFactorAuth.deleteOne({
+      _id: existing2fa._id,
+    });
+
+    // Set authentication cookie
+    res.cookie("token", jwtToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Admin login successful",
+      user: {
+        _id: existingUser._id,
+        name: existingUser.name,
+        email: existingUser.email,
+        phone: existingUser.phone,
+        role: existingUser.role,
+      },
     });
   } catch (error) {
     next(error);

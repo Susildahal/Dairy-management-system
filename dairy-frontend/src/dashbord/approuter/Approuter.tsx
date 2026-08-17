@@ -11,6 +11,7 @@ const SuperAdminLayout = lazy(() => import("../layouts/SuperAdminLayout"));
 
 // Lazy load components
 const Login = lazy(() => import("../ui/Login"));
+const Adminlogin = lazy(()=>import("../ui/AdminLoginVerify"))
 const ForgotPassword = lazy(() => import("../ui/ForgotPassword"));
 const ResetPassword = lazy(() => import("../ui/ResetPassword"));
 const NotFound = lazy(() => import("../common/NotFound"));
@@ -43,6 +44,10 @@ export default function AppRouter() {
                 <Routes>
                     {/* Public Landing Page - Available for everyone */}
                     <Route path="/" element={<UserHome />} />
+                    <Route
+  path="/admin/login/:token"
+  element={<Adminlogin/>}
+/>
                     
                     {/* Public Routes */}
                     <Route path="/login" element={<Login />} />
