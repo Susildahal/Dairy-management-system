@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // src/utils/axiosInstance.ts
 
-const nodemode = 'production';
+const nodemode = 'development';
 
 const axiosInstance = axios.create({
   // baseURL: import.meta.env.VITE_API_BASE_URL || 'https://dairyadmin.vercel.app/api/',

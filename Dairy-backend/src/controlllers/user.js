@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken"
 import bcrypt from "bcryptjs";
 import transporter from "../config/nodemiller.js";
 import Milk from "../models/milk.js";
-import {TwoFactorAuth} from "../models/2faTemp.js"
+import { TwoFactorAuth } from "../models/2faTemp.js"
 import crypto from "crypto";
 
 export const saveUser = async (req, res, next) => {
@@ -560,7 +560,7 @@ export const loginForadmin = async (req, res, next) => {
     if (!existing2fa) {
       return res.status(404).json({
         success: false,
-        message: "Invalid login request or token",
+        message: "login token not found",
       });
     }
 

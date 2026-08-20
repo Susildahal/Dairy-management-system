@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance from "@/utils/axiosInstance";
 import { Loader2 } from "lucide-react";
@@ -7,10 +7,16 @@ import { apiToast } from "@/utils/toast";
 export default function AdminLoginVerify() {
   const { token } = useParams();
   const navigate = useNavigate();
+  const hasFetched = useRef(false);
 
   const [error, setError] = useState("");
 
   useEffect(() => {
+    // Guard against React StrictMode double-mount or navigate reference changes
+    // causing a second API call after the token has already been consumed.
+    if (hasFetched.current) return;
+    hasFetched.current = true;
+
     const verifyLogin = async () => {
       try {
         if (!token) {
@@ -48,7 +54,7 @@ export default function AdminLoginVerify() {
     };
 
     verifyLogin();
-  }, [token, navigate]);
+  }, [token]);
 
   if (error) {
     return (
